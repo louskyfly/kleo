@@ -62,13 +62,13 @@
   width: 100%; min-height: 38px; padding: 8px 10px;
   border: 1px solid var(--line); border-radius: 9px;
   background: var(--paper); color: var(--ink);
-  font: inherit; font-size: 12px; line-height: 1.4; outline: none;
+  font: inherit; font-size: 13px; line-height: 1.4; outline: none;
   transition: border-color .16s, box-shadow .16s, background .16s;
 }
 .einput:focus { border-color: var(--terre); background: #fff; box-shadow: 0 0 0 3px rgba(184, 84, 47, .09); }
 textarea.einput { min-height: 62px; resize: vertical; }
 .efield { display: flex; flex-direction: column; gap: 4px; }
-.efield > span { font-size: 10.5px; font-weight: 600; color: var(--ink-2); letter-spacing: .01em; }
+.efield > span { font-size: 11px; font-weight: 600; color: var(--ink-2); letter-spacing: .01em; }
 .efield.half { flex: 1 1 44%; min-width: 0; }
 .efields { display: flex; flex-wrap: wrap; gap: 8px; }
 .efields > .efield { flex: 1 1 100%; }
