@@ -617,6 +617,10 @@
       closeDrawer();
     }
     closeInspector();
+    if (name === 'generate' && !state.genTimers.length) {
+      showScreen(state.currentId ? 'editor' : 'library');
+      return;
+    }
     if (SCREENS.includes(name)) showScreen(name);
     else showScreen('library');
   }

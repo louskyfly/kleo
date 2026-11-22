@@ -69,6 +69,16 @@ docs/
   previews/             captures des versions
 ```
 
+## Déploiement
+
+La version en ligne est publiée depuis la branche **`gh-pages`**, qui contient le dossier `app/`. Après une modification :
+
+```bash
+git subtree split --prefix app -b gh-pages-deploy
+git push origin gh-pages-deploy:gh-pages --force
+git branch -D gh-pages-deploy
+```
+
 ## Limites assumées de la v2
 
 - **Tout est local** : les séances vivent dans le navigateur de l'appareil. Pas encore de compte ni de synchronisation.
