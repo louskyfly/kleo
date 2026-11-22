@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F7F2E7">
+<title>Kléo — la fabrique de séances</title>
+<meta name="description" content="Transformez vos documents de cours en séances interactives, prêtes pour l'iPad. Histoire, géographie, EMC.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23152420'/%3E%3Cpath d='M20 18v28M44 18 26 33l19 13' stroke='%23F7F2E7' stroke-width='5' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3Ccircle cx='47' cy='17' r='4' fill='%23D9A441'/%3E%3C/svg%3E">
+</head>
+<body>
+
+<svg class="sprite" aria-hidden="true" focusable="false">
+  <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></symbol>
+  <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 3.5l1.6 4.4 4.4 1.6-4.4 1.6L12 15.5l-1.6-4.4L6 9.5l4.4-1.6z"/><path d="M18.4 15.2l.6 1.8 1.8.6-1.8.6-.6 1.8-.6-1.8-1.8-.6 1.8-.6z"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-arrow-right" viewBox="0 0 24 24"><path d="M4 12h16M14 6l6 6-6 6"/></symbol>
+  <symbol id="i-arrow-left" viewBox="0 0 24 24"><path d="M20 12H4M10 6l-6 6 6 6"/></symbol>
+  <symbol id="i-chevron" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M4 12.5l5 5L20 6.5"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M16.5 16.5L21 21"/></symbol>
+  <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 15v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4"/></symbol>
+  <symbol id="i-doc" viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4M9 12h6M9 16h6"/></symbol>
+  <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 13.5a4 4 0 0 0 5.7 0l2.8-2.8a4 4 0 0 0-5.7-5.7L11.5 6"/><path d="M14 10.5a4 4 0 0 0-5.7 0l-2.8 2.8a4 4 0 0 0 5.7 5.7l1.3-1.3"/></symbol>
+  <symbol id="i-map" viewBox="0 0 24 24"><path d="M3 6.5l6-2 6 2 6-2v13l-6 2-6-2-6 2z"/><path d="M9 4.5v13M15 6.5v13"/></symbol>
+  <symbol id="i-cards" viewBox="0 0 24 24"><rect x="3" y="7" width="12" height="14" rx="2"/><path d="M8 4h11a2 2 0 0 1 2 2v11"/></symbol>
+  <symbol id="i-quiz" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.2 9.2a2.9 2.9 0 1 1 3.9 2.7c-.8.4-1.1 1-1.1 1.9"/><circle cx="12" cy="17.2" r=".8" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5.2l3.2 2"/></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.4"/><path d="M3 20c0-3.3 2.7-5.4 6-5.4s6 2.1 6 5.4"/><path d="M16 4.6a3.4 3.4 0 0 1 0 6.8M18 14.9c2 .7 3 2.4 3 5.1"/></symbol>
+  <symbol id="i-folder" viewBox="0 0 24 24"><path d="M3 7.5A1.5 1.5 0 0 1 4.5 6h4l2 2h9A1.5 1.5 0 0 1 21 9.5v8A1.5 1.5 0 0 1 19.5 19h-15A1.5 1.5 0 0 1 3 17.5z"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5.5l11 6.5-11 6.5z"/></symbol>
+  <symbol id="i-share" viewBox="0 0 24 24"><circle cx="6" cy="12" r="2.6"/><circle cx="18" cy="6" r="2.6"/><circle cx="18" cy="18" r="2.6"/><path d="M8.4 10.8l7.2-3.6M8.4 13.2l7.2 3.6"/></symbol>
+  <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+  <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2.5 12S6 5.8 12 5.8 21.5 12 21.5 12 18 18.2 12 18.2 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="2.8"/></symbol>
+  <symbol id="i-layers" viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5z"/><path d="M3 12.5l9 5 9-5M3 17l9 5 9-5"/></symbol>
+  <symbol id="i-settings" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2.8v2.4M12 18.8v2.4M2.8 12h2.4M18.8 12h2.4M5.5 5.5l1.7 1.7M16.8 16.8l1.7 1.7M18.5 5.5l-1.7 1.7M7.2 16.8l-1.7 1.7"/></symbol>
+  <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 4l2.4 5 5.6.8-4 3.9.9 5.5-4.9-2.6-4.9 2.6.9-5.5-4-3.9 5.6-.8z"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s6.5-6.1 6.5-11a6.5 6.5 0 1 0-13 0C5.5 14.9 12 21 12 21z"/><circle cx="12" cy="10" r="2.3"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 4v12M7 11l5 5 5-5"/><path d="M4 19h16"/></symbol>
+  <symbol id="i-more" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.4" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.4" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1.4" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-expand" viewBox="0 0 24 24"><path d="M9 3H3v6M15 3h6v6M9 21H3v-6M15 21h6v-6"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="4.5" y="10" width="15" height="10" rx="2"/><path d="M8 10V7.5a4 4 0 0 1 8 0V10"/></symbol>
+  <symbol id="i-wand" viewBox="0 0 24 24"><path d="M15 4l5 5L8 21l-5-5z"/><path d="M14 5l5 5M6 3v3M4.5 4.5h3M19 15v3M17.5 16.5h3"/></symbol>
+  <symbol id="i-image" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.6"/><path d="M3.5 17l5-5 4 4 3-3 5 4.5"/></symbol>
+  <symbol id="i-text" viewBox="0 0 24 24"><path d="M5 6h14M12 6v13M8 19h8"/></symbol>
+  <symbol id="i-a11y" viewBox="0 0 24 24"><circle cx="12" cy="4.8" r="1.8"/><path d="M6 9.5l6 1.4 6-1.4M12 10.9V15M12 15l-2.4 5M12 15l2.4 5"/></symbol>
+  <symbol id="i-timeline" viewBox="0 0 24 24"><path d="M3 12h18"/><circle cx="7" cy="12" r="2" fill="currentColor" stroke="none"/><circle cx="13" cy="12" r="2" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="2" fill="currentColor" stroke="none"/><path d="M7 9V6M13 15v3M19 9V6"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/></symbol>
+  <symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.3 9.4a2.8 2.8 0 1 1 3.8 2.6c-.8.4-1.1 1-1.1 1.9"/><circle cx="12" cy="17.2" r=".8" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-drag" viewBox="0 0 24 24"><circle cx="9" cy="6" r="1.2" fill="currentColor" stroke="none"/><circle cx="15" cy="6" r="1.2" fill="currentColor" stroke="none"/><circle cx="9" cy="12" r="1.2" fill="currentColor" stroke="none"/><circle cx="15" cy="12" r="1.2" fill="currentColor" stroke="none"/><circle cx="9" cy="18" r="1.2" fill="currentColor" stroke="none"/><circle cx="15" cy="18" r="1.2" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-qr" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14h1M14 20h3M20 17v4M17 20h1"/></symbol>
+</svg>
+
+<div class="app">
+  <aside class="rail" aria-label="Navigation principale">
+    <a class="brand" href="#/library" aria-label="Kléo, bibliothèque">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 32 32"><path d="M9 7v18M23 7 12 16.5 23.5 25" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><circle cx="24.5" cy="6.5" r="2.2" fill="var(--safran)"/></svg>
+      </span>
+      <span class="brand-word">kléo<span>.</span></span>
+    </a>
+
+    <nav class="rail-nav">
+      <a class="rail-link is-active" href="#/library" data-rail><svg class="ico"><use href="#i-grid"/></svg><span>Bibliothèque</span></a>
+      <a class="rail-link" href="#/models" data-rail data-soon="Modèles"><svg class="ico"><use href="#i-layers"/></svg><span>Modèles</span></a>
+      <a class="rail-link" href="#/classes" data-rail data-soon="Classes"><svg class="ico"><use href="#i-users"/></svg><span>Classes</span></a>
+      <a class="rail-link" href="#/documents" data-rail data-soon="Documents"><svg class="ico"><use href="#i-folder"/></svg><span>Documents</span></a>
+    </nav>
+
+    <div class="rail-foot">
+      <button class="rail-link" data-toast="Centre d'aide — à venir"><svg class="ico"><use href="#i-help"/></svg><span>Aide</span></button>
+      <button class="avatar" data-toast="Compte de Lucas B." aria-label="Compte de Lucas B.">LB</button>
+    </div>
+  </aside>
+
+  <main class="app-main">
+
+    <!-- ============================ BIBLIOTHÈQUE ============================ -->
+    <section class="screen" id="screen-library" aria-labelledby="lib-title">
+      <header class="topbar">
+        <div class="search">
+          <svg class="ico"><use href="#i-search"/></svg>
+          <input type="search" placeholder="Rechercher une séance, un document…" aria-label="Rechercher">
+          <kbd>⌘K</kbd>
+        </div>
+        <div class="topbar-actions">
+          <button class="btn btn-ghost only-desktop" data-toast="Vos documents sont privés par défaut."><svg class="ico"><use href="#i-lock"/></svg>Privé</button>
+          <button class="btn btn-primary" data-go="import"><svg class="ico"><use href="#i-plus"/></svg><span>Nouvelle séance</span></button>
+        </div>
+      </header>
+
+      <div class="page">
+        <section class="hero">
+          <div class="hero-copy">
+            <p class="eyebrow"><span class="live-dot"></span>L'atelier de séances</p>
+            <h1 id="lib-title">Vos documents deviennent<br><em>une séance qui se vit.</em></h1>
+            <p class="lede">Déposez un cours, un PDF, des photos de manuel. Kléo structure, met en page et rend tout interactif — prêt à projeter et à manipuler sur iPad.</p>
+            <div class="hero-actions">
+              <button class="btn btn-cream btn-lg" data-go="import"><svg class="ico"><use href="#i-upload"/></svg>Déposer mes documents</button>
+              <button class="btn btn-ghost-cream btn-lg" data-open-viewer="0"><svg class="ico"><use href="#i-play"/></svg>Voir un exemple</button>
+            </div>
+            <ul class="hero-proof">
+              <li><svg class="ico"><use href="#i-check"/></svg>PDF, Word, photos</li>
+              <li><svg class="ico"><use href="#i-check"/></svg>Prêt pour l'iPad</li>
+              <li><svg class="ico"><use href="#i-check"/></svg>Accessible</li>
+            </ul>
+          </div>
+          <div class="hero-art" aria-hidden="true">
+            <div class="paper paper-3"><span class="p-line w40"></span><span class="p-line w80"></span><span class="p-line w65"></span><span class="p-line w75"></span></div>
+            <div class="paper paper-2"><span class="p-line w70"></span><span class="p-line w90"></span><span class="p-line w50"></span><span class="p-line w80"></span><span class="p-line w60"></span></div>
+            <div class="paper paper-1">
+              <span class="p-tag">1776 — 1789</span>
+              <span class="p-line w85"></span><span class="p-line w60"></span>
+              <span class="p-tl"><i></i><i></i><i></i></span>
+              <span class="p-line w40"></span>
+            </div>
+            <div class="spark sp-1">✦</div>
+            <div class="spark sp-2">✦</div>
+            <div class="art-badge"><svg class="ico"><use href="#i-spark"/></svg>4 documents → 9 pages</div>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="section-head">
+            <h2>À reprendre</h2>
+            <button class="link-btn" data-toast="Toutes les séances sont affichées ci-dessous.">Tout voir<svg class="ico"><use href="#i-chevron"/></svg></button>
+          </div>
+          <div class="resume-grid">
+            <button class="resume-card" data-go="editor">
+              <span class="resume-cover cover cover-1"><span class="cover-ghost">1789</span></span>
+              <span class="resume-body">
+                <span class="badge-row"><span class="badge badge-terre">Histoire · 4e</span><span class="badge badge-draft">Brouillon</span></span>
+                <strong>Des Lumières à la Révolution</strong>
+                <span class="meta">9 pages · modifié il y a 12 min</span>
+                <span class="progress"><i style="--p:72%"></i></span>
+                <span class="meta tiny">72 % — il reste la synthèse et le quiz</span>
+              </span>
+              <span class="resume-go"><svg class="ico"><use href="#i-arrow-right"/></svg></span>
+            </button>
+
+            <button class="resume-card" data-toast="Cette séance s'ouvrira dans la v1.">
+              <span class="resume-cover cover cover-2"><span class="cover-ghost">2030</span></span>
+              <span class="resume-body">
+                <span class="badge-row"><span class="badge">Géographie · 5e</span><span class="badge badge-ready">Prête</span></span>
+                <strong>La ville de demain</strong>
+                <span class="meta">11 pages · utilisée hier en 5e C</span>
+                <span class="progress"><i style="--p:100%"></i></span>
+                <span class="meta tiny">Partagée avec 28 élèves</span>
+              </span>
+              <span class="resume-go"><svg class="ico"><use href="#i-arrow-right"/></svg></span>
+            </button>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="section-head section-head-wrap">
+            <div>
+              <h2>Mes séances</h2>
+              <p class="section-sub">6 séances · 2 brouillons</p>
+            </div>
+            <div class="filters" role="group" aria-label="Filtrer les séances">
+              <button class="chip is-on" data-filter>Toutes</button>
+              <button class="chip" data-filter>Histoire</button>
+              <button class="chip" data-filter>Géographie</button>
+              <button class="chip" data-filter>EMC</button>
+              <button class="chip chip-icon" data-toast="Filtres avancés — à venir" aria-label="Plus de filtres"><svg class="ico"><use href="#i-settings"/></svg></button>
+            </div>
+          </div>
+
+          <div class="session-grid">
+            <button class="session-card" data-go="editor">
+              <span class="cover cover-1"><span class="cover-kicker">Histoire · 4e</span><span class="cover-ghost">1789</span><span class="cover-year">1750 — 1815</span></span>
+              <span class="session-body">
+                <strong>Des Lumières à la Révolution</strong>
+                <span class="meta">9 pages · 4 documents</span>
+                <span class="session-foot"><span class="badge badge-draft">Brouillon</span><span class="meta tiny">12 min</span></span>
+              </span>
+            </button>
+
+            <button class="session-card" data-toast="Aperçu disponible dans la maquette : ouvrez « Des Lumières à la Révolution ».">
+              <span class="cover cover-2"><span class="cover-kicker">Géographie · 5e</span><span class="cover-ghost">2030</span><span class="cover-year">Habiter demain</span></span>
+              <span class="session-body">
+                <strong>La ville de demain</strong>
+                <span class="meta">11 pages · 6 documents</span>
+                <span class="session-foot"><span class="badge badge-ready">Prête</span><span class="meta tiny">hier</span></span>
+              </span>
+            </button>
+
+            <button class="session-card" data-toast="Aperçu disponible dans la maquette : ouvrez « Des Lumières à la Révolution ».">
+              <span class="cover cover-3"><span class="cover-kicker">EMC · 3e</span><span class="cover-ghost">VOTE</span><span class="cover-year">1848 — 1944</span></span>
+              <span class="session-body">
+                <strong>Le droit de vote, une conquête</strong>
+                <span class="meta">8 pages · 3 documents</span>
+                <span class="session-foot"><span class="badge badge-ready">Prête</span><span class="meta tiny">lun. 17 nov.</span></span>
+              </span>
+            </button>
+
+            <button class="session-card" data-toast="Aperçu disponible dans la maquette : ouvrez « Des Lumières à la Révolution ».">
+              <span class="cover cover-4"><span class="cover-kicker">Histoire · 3e</span><span class="cover-ghost">14-18</span><span class="cover-year">1914 — 1918</span></span>
+              <span class="session-body">
+                <strong>La Première Guerre mondiale</strong>
+                <span class="meta">14 pages · 7 documents</span>
+                <span class="session-foot"><span class="badge">Vue 24 fois</span><span class="meta tiny">8 nov.</span></span>
+              </span>
+            </button>
+
+            <button class="session-card" data-toast="Aperçu disponible dans la maquette : ouvrez « Des Lumières à la Révolution ».">
+              <span class="cover cover-5"><span class="cover-kicker">Géographie · 3e</span><span class="cover-ghost">85%</span><span class="cover-year">Métropolisation</span></span>
+              <span class="session-body">
+                <strong>Les espaces productifs français</strong>
+                <span class="meta">10 pages · 5 documents</span>
+                <span class="session-foot"><span class="badge">Vue 18 fois</span><span class="meta tiny">4 nov.</span></span>
+              </span>
+            </button>
+
+            <button class="session-card" data-toast="Aperçu disponible dans la maquette : ouvrez « Des Lumières à la Révolution ».">
+              <span class="cover cover-6"><span class="cover-kicker">EMC · 4e</span><span class="cover-ghost">≠</span><span class="cover-year">Liberté d'expression</span></span>
+              <span class="session-body">
+                <strong>Laïcité et liberté d'expression</strong>
+                <span class="meta">7 pages · 4 documents</span>
+                <span class="session-foot"><span class="badge badge-draft">Brouillon</span><span class="meta tiny">2 nov.</span></span>
+              </span>
+            </button>
+          </div>
+        </section>
+
+        <footer class="page-foot">
+          <span>Kléo · maquette v0.1</span>
+          <span>Nom de travail — design et contenus à valider</span>
+        </footer>
+      </div>
+    </section>
+
+    <!-- ============================ IMPORT ============================ -->
+    <section class="screen" id="screen-import" aria-labelledby="import-title">
+      <header class="focusbar">
+        <button class="icon-btn" data-go="library" aria-label="Retour à la bibliothèque"><svg class="ico"><use href="#i-arrow-left"/></svg></button>
+        <div class="focusbar-title">
+          <p class="crumb">Bibliothèque / Nouvelle séance</p>
+          <h1 id="import-title">Composer une séance</h1>
+        </div>
+        <ol class="stepper" aria-label="Étapes">
+          <li class="is-on">1 · Documents</li>
+          <li>2 · Réglages</li>
+          <li>3 · Génération</li>
+        </ol>
+      </header>
+
+      <div class="import-grid">
+        <section class="panel drop-panel">
+          <div class="panel-head">
+            <div>
+              <h2>Déposez vos documents</h2>
+              <p class="panel-sub">Un chapitre, un PDF de manuel, des photos, un lien. Kléo s'occupe du reste.</p>
+            </div>
+            <span class="badge badge-soft">Privé par défaut</span>
+          </div>
+
+          <div class="dropzone" id="dropzone" role="button" tabindex="0" aria-label="Déposer des fichiers">
+            <span class="drop-icon"><svg class="ico"><use href="#i-upload"/></svg></span>
+            <strong>Glissez vos fichiers ici</strong>
+            <span class="drop-sub">ou <u>parcourez votre iPad</u></span>
+            <span class="drop-types">PDF · DOCX · TXT · JPG · PNG · HEIC — 25 Mo max</span>
+          </div>
+          <input type="file" id="file-input" multiple hidden accept=".pdf,.docx,.txt,.md,.jpg,.jpeg,.png,.heic">
+
+          <ul class="file-list" id="file-list" aria-label="Documents importés"></ul>
+
+          <div class="link-add">
+            <svg class="ico"><use href="#i-link"/></svg>
+            <input id="link-input" type="url" placeholder="Coller un lien : vidéo, article, carte…" aria-label="Lien à ajouter">
+            <button class="btn btn-soft" id="link-add">Ajouter</button>
+          </div>
+
+          <p class="privacy"><svg class="ico"><use href="#i-lock"/></svg>Vos documents ne sont jamais utilisés pour entraîner un modèle. Vous pouvez les supprimer à tout moment.</p>
+        </section>
+
+        <aside class="panel settings-panel" aria-label="Réglages de la séance">
+          <h2>Réglages</h2>
+
+          <div class="field">
+            <span class="field-label">Matière</span>
+            <div class="segmented" data-seg="subject" role="group" aria-label="Matière">
+              <button class="is-on" data-value="histoire">Histoire</button>
+              <button data-value="geo">Géographie</button>
+              <button data-value="emc">EMC</button>
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="field-label" for="level">Niveau</label>
+            <div class="select-wrap">
+              <select id="level">
+                <option>6e</option><option>5e</option><option selected>4e</option><option>3e</option>
+                <option>2de</option><option>1re</option><option>Terminale</option>
+              </select>
+              <svg class="ico"><use href="#i-chevron"/></svg>
+            </div>
+          </div>
+
+          <div class="field">
+            <span class="field-label">Durée</span>
+            <div class="segmented" data-seg="duration" role="group" aria-label="Durée">
+              <button data-value="30">30 min</button>
+              <button class="is-on" data-value="55">55 min</button>
+              <button data-value="90">90 min</button>
+            </div>
+          </div>
+
+          <div class="field">
+            <span class="field-label">Intention de séance</span>
+            <div class="chip-row" role="group" aria-label="Intention">
+              <button class="chip is-on" data-toggle>Découverte</button>
+              <button class="chip" data-toggle>Analyse de document</button>
+              <button class="chip" data-toggle>Révision</button>
+              <button class="chip" data-toggle>Évaluation</button>
+            </div>
+          </div>
+
+          <div class="field field-switch">
+            <div><span class="field-label">Inclure un quiz</span><span class="field-help">3 questions avec feedback</span></div>
+            <label class="switch"><input type="checkbox" checked aria-label="Inclure un quiz"><span></span></label>
+          </div>
+          <div class="field field-switch">
+            <div><span class="field-label">Version accessible</span><span class="field-help">Contrastes, ordre de lecture, alternatives</span></div>
+            <label class="switch"><input type="checkbox" checked aria-label="Version accessible"><span></span></label>
+          </div>
+
+          <div class="estimate">
+            <svg class="ico"><use href="#i-spark"/></svg>
+            <div><strong>≈ 9 pages · 4 activités</strong><span>à partir de 4 documents</span></div>
+          </div>
+        </aside>
+      </div>
+
+      <footer class="actionbar">
+        <p class="actionbar-note"><svg class="ico"><use href="#i-clock"/></svg>Environ 20 secondes de génération</p>
+        <div class="actionbar-actions">
+          <button class="btn btn-ghost" data-go="library">Annuler</button>
+          <button class="btn btn-primary btn-lg" id="generate-btn"><svg class="ico"><use href="#i-spark"/></svg>Générer ma séance</button>
+        </div>
+      </footer>
+    </section>
+
+    <!-- ============================ GÉNÉRATION ============================ -->
+    <section class="screen" id="screen-generate" aria-labelledby="gen-title">
+      <div class="gen-wrap">
+        <div class="gen-copy">
+          <p class="eyebrow"><span class="live-dot"></span>Génération</p>
+          <h1 id="gen-title">Kléo lit, trie,<br><em>et compose.</em></h1>
+          <p class="gen-sub">Histoire · 4e · 55 min · 4 documents</p>
+
+          <ol class="gen-steps" id="gen-steps">
+            <li data-step="0"><span class="gen-check"><svg class="ico"><use href="#i-check"/></svg></span><span><strong>Lecture des documents</strong><small>Texte, titres, dates, légendes</small></span></li>
+            <li data-step="1"><span class="gen-check"><svg class="ico"><use href="#i-check"/></svg></span><span><strong>Repérage du thème</strong><small>Le XVIIIe siècle, Lumières et révolutions</small></span></li>
+            <li data-step="2"><span class="gen-check"><svg class="ico"><use href="#i-check"/></svg></span><span><strong>Construction du plan</strong><small>9 pages, une idée par page</small></span></li>
+            <li data-step="3"><span class="gen-check"><svg class="ico"><use href="#i-check"/></svg></span><span><strong>Mise en page et interactions</strong><small>Frise, carte, cartes, quiz</small></span></li>
+            <li data-step="4"><span class="gen-check"><svg class="ico"><use href="#i-check"/></svg></span><span><strong>Contrôle de l'accessibilité</strong><small>Contrastes, cibles tactiles, ordre de lecture</small></span></li>
+          </ol>
+
+          <div class="gen-progress" aria-hidden="true"><span id="gen-bar"></span></div>
+          <p class="gen-note" id="gen-note">Cela prend généralement une vingtaine de secondes.</p>
+        </div>
+
+        <div class="gen-preview" aria-hidden="true">
+          <div class="gen-cover">
+            <span class="sk sk-kicker"></span>
+            <span class="sk sk-title"></span>
+            <span class="sk sk-title short"></span>
+            <span class="sk sk-text"></span>
+            <span class="sk sk-text"></span>
+            <div class="sk-timeline"><i></i><i></i><i></i><i></i></div>
+          </div>
+          <div class="gen-toast"><svg class="ico"><use href="#i-spark"/></svg>9 pages structurées</div>
+          <div class="gen-toast gen-toast-2"><svg class="ico"><use href="#i-check"/></svg>Accessibilité validée</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================ ÉDITEUR ============================ -->
+    <section class="screen" id="screen-editor" aria-labelledby="editor-title">
+      <header class="editorbar">
+        <button class="icon-btn" data-go="library" aria-label="Retour à la bibliothèque"><svg class="ico"><use href="#i-arrow-left"/></svg></button>
+        <div class="doc-title">
+          <p class="crumb">Bibliothèque / Histoire 4e</p>
+          <div class="title-row">
+            <h1 id="editor-title">Des Lumières à la Révolution</h1>
+            <span class="badge badge-draft">Brouillon</span>
+          </div>
+        </div>
+        <div class="editor-actions">
+          <button class="icon-btn only-desktop" data-toast="Aperçu accessibilité : 7 contrôles sur 7 validés." aria-label="Accessibilité"><svg class="ico"><use href="#i-a11y"/></svg></button>
+          <button class="icon-btn only-desktop" data-modal="publish" aria-label="Partager"><svg class="ico"><use href="#i-share"/></svg></button>
+          <button class="btn btn-ghost" id="present-btn"><svg class="ico"><use href="#i-play"/></svg>Aperçu</button>
+          <button class="btn btn-primary" data-modal="publish"><svg class="ico"><use href="#i-share"/></svg>Publier</button>
+        </div>
+      </header>
+
+      <div class="editor-shell">
+        <aside class="editor-pages" aria-label="Plan de la séance">
+          <div class="panel-head small">
+            <h2>Plan</h2>
+            <span class="meta tiny">9 pages · 55 min</span>
+          </div>
+          <ol id="page-list" class="page-list"></ol>
+          <button class="add-page" data-toast="Bloc ajouté en fin de séance."><svg class="ico"><use href="#i-plus"/></svg>Ajouter une page</button>
+          <div class="pages-foot">
+            <svg class="ico"><use href="#i-a11y"/></svg>
+            <span><strong>Accessibilité</strong><small>7 contrôles validés</small></span>
+            <span class="dot-ok"></span>
+          </div>
+        </aside>
+
+        <div class="editor-canvas">
+          <div class="canvas-meta">
+            <span id="canvas-label">Page 1 · Couverture</span>
+            <span class="canvas-meta-right">1280 × 720 · iPad paysage</span>
+          </div>
+          <div class="canvas-frame"><div class="canvas-slide" id="canvas-slide"></div></div>
+          <div class="canvas-tools">
+            <div class="tool-group">
+              <button class="icon-btn" data-toast="Zoom arrière (maquette)" aria-label="Zoom arrière">−</button>
+              <span class="zoom">100 %</span>
+              <button class="icon-btn" data-toast="Zoom avant (maquette)" aria-label="Zoom avant">+</button>
+            </div>
+            <div class="tool-group">
+              <button class="device-btn is-on" data-toast="Aperçu iPad paysage">iPad · paysage</button>
+              <button class="device-btn" data-toast="Aperçu iPad portrait">Portrait</button>
+            </div>
+            <button class="btn btn-ghost btn-sm only-tablet" id="mobile-blocks"><svg class="ico"><use href="#i-spark"/></svg>Blocs</button>
+            <button class="btn btn-ghost btn-sm" id="canvas-present"><svg class="ico"><use href="#i-play"/></svg>Démarrer ici</button>
+          </div>
+        </div>
+
+        <aside class="editor-inspector" aria-label="Réglages du bloc">
+          <div class="tabs" role="tablist">
+            <button class="is-on" role="tab" aria-selected="true" data-tab="block">Bloc</button>
+            <button role="tab" aria-selected="false" data-tab="design">Design</button>
+            <button role="tab" aria-selected="false" data-tab="a11y">Accès</button>
+          </div>
+
+          <div class="tab-panel" id="tab-block">
+            <div class="inspector-head">
+              <span class="badge badge-soft" id="block-type">Couverture</span>
+              <h3 id="block-title">Ouvrir la séance</h3>
+              <p class="meta tiny">Un seul bloc. Titre, accroche, durée.</p>
+            </div>
+            <div class="field">
+              <span class="field-label">Insérer un bloc</span>
+              <div class="block-grid">
+                <button class="block-btn" data-add-block="timeline"><svg class="ico"><use href="#i-timeline"/></svg>Frise</button>
+                <button class="block-btn" data-add-block="map"><svg class="ico"><use href="#i-map"/></svg>Carte</button>
+                <button class="block-btn" data-add-block="flipcards"><svg class="ico"><use href="#i-cards"/></svg>Cartes</button>
+                <button class="block-btn" data-add-block="document"><svg class="ico"><use href="#i-doc"/></svg>Document</button>
+                <button class="block-btn" data-add-block="quiz"><svg class="ico"><use href="#i-quiz"/></svg>Quiz</button>
+                <button class="block-btn" data-add-block="deposit"><svg class="ico"><use href="#i-upload"/></svg>Dépôt</button>
+                <button class="block-btn" data-add-block="link"><svg class="ico"><use href="#i-link"/></svg>Lien</button>
+                <button class="block-btn" data-add-block="text"><svg class="ico"><use href="#i-text"/></svg>Texte</button>
+              </div>
+            </div>
+            <div class="field">
+              <span class="field-label">Densité du texte</span>
+              <input type="range" min="1" max="3" value="2" class="range" aria-label="Densité du texte">
+              <div class="range-labels"><span>Aérée</span><span>Équilibrée</span><span>Dense</span></div>
+            </div>
+            <div class="field field-switch">
+              <div><span class="field-label">Afficher les numéros</span><span class="field-help">Repères et navigation</span></div>
+              <label class="switch"><input type="checkbox" checked aria-label="Afficher les numéros"><span></span></label>
+            </div>
+          </div>
+
+          <div class="tab-panel" id="tab-design" hidden>
+            <div class="inspector-head">
+              <h3>Ambiance</h3>
+              <p class="meta tiny">Appliquée à toute la séance.</p>
+            </div>
+            <div class="field">
+              <span class="field-label">Palette</span>
+              <div class="palettes">
+                <button class="palette is-on" data-toast="Palette Papier & encre appliquée."><i style="background:#F7F2E7"></i><i style="background:#152420"></i><i style="background:#B8542F"></i><span>Papier</span></button>
+                <button class="palette" data-toast="Palette Ardoise appliquée."><i style="background:#E8EEF0"></i><i style="background:#16303A"></i><i style="background:#2F7E8A"></i><span>Ardoise</span></button>
+                <button class="palette" data-toast="Palette Manuscrit appliquée."><i style="background:#F3E7D3"></i><i style="background:#3A2B22"></i><i style="background:#C58B3A"></i><span>Manuscrit</span></button>
+              </div>
+            </div>
+            <div class="field">
+              <span class="field-label">Titres</span>
+              <div class="segmented small" data-seg="type">
+                <button class="is-on">Éditorial</button><button>Sobre</button><button>Classique</button>
+              </div>
+            </div>
+            <div class="thumb-grid">
+              <button class="thumb is-on" data-toast="Mise en page « Récit »."><span></span>Récit</button>
+              <button class="thumb" data-toast="Mise en page « Dossier »."><span></span>Dossier</button>
+              <button class="thumb" data-toast="Mise en page « Atlas »."><span></span>Atlas</button>
+              <button class="thumb" data-toast="Mise en page « Frise »."><span></span>Frise</button>
+            </div>
+          </div>
+
+          <div class="tab-panel" id="tab-a11y" hidden>
+            <div class="inspector-head">
+              <h3>Accessibilité</h3>
+              <p class="meta tiny">Contrôles automatiques sur cette page.</p>
+            </div>
+            <ul class="check-list">
+              <li class="ok"><span class="check-ico"><svg class="ico"><use href="#i-check"/></svg></span>Contrastes conformes AA</li>
+              <li class="ok"><span class="check-ico"><svg class="ico"><use href="#i-check"/></svg></span>Cibles tactiles ≥ 44 px</li>
+              <li class="ok"><span class="check-ico"><svg class="ico"><use href="#i-check"/></svg></span>Ordre de lecture défini</li>
+              <li class="ok"><span class="check-ico"><svg class="ico"><use href="#i-check"/></svg></span>Alternative textuelle sur les documents</li>
+              <li class="ok"><span class="check-ico"><svg class="ico"><use href="#i-check"/></svg></span>Navigation clavier complète</li>
+              <li class="ok"><span class="check-ico"><svg class="ico"><use href="#i-check"/></svg></span>Information jamais portée par la couleur seule</li>
+              <li class="ok"><span class="check-ico"><svg class="ico"><use href="#i-check"/></svg></span>Animations réduites si demandé</li>
+            </ul>
+            <p class="a11y-note">Ces vérifications sont refaites à chaque modification et avant publication.</p>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- ============================ MODE SÉANCE ============================ -->
+<section class="viewer" id="screen-viewer" aria-label="Mode séance" hidden>
+  <div class="viewer-bg" aria-hidden="true"></div>
+
+  <header class="viewer-top">
+    <button class="v-close" data-viewer-close><svg class="ico"><use href="#i-arrow-left"/></svg><span>Quitter</span></button>
+    <div class="v-title"><strong>Des Lumières à la Révolution</strong><span>Histoire · 4e</span></div>
+    <div class="v-actions">
+      <button class="v-btn" id="teacher-toggle"><svg class="ico"><use href="#i-eye"/></svg><span>Mode prof</span></button>
+      <button class="v-btn" data-drawer="summary"><svg class="ico"><use href="#i-menu"/></svg><span>Sommaire</span></button>
+      <button class="v-btn icon" id="fullscreen-btn" aria-label="Plein écran"><svg class="ico"><use href="#i-expand"/></svg></button>
+    </div>
+  </header>
+
+  <div class="deck-wrap" id="deck-wrap">
+    <div class="deck" id="deck"></div>
+  </div>
+
+  <button class="v-nav prev" data-step="-1" aria-label="Page précédente"><svg class="ico"><use href="#i-chevron"/></svg></button>
+  <button class="v-nav next" data-step="1" aria-label="Page suivante"><svg class="ico"><use href="#i-chevron"/></svg></button>
+
+  <footer class="viewer-bottom">
+    <div class="v-progress"><span id="v-bar"></span></div>
+    <span id="v-count">01 / 09</span>
+    <div class="v-dots" id="v-dots"></div>
+    <span class="v-hint"><svg class="ico"><use href="#i-arrow-left"/></svg>glisser<svg class="ico"><use href="#i-arrow-right"/></svg></span>
+  </footer>
+
+  <aside class="drawer summary-drawer" id="drawer-summary" aria-label="Sommaire" hidden>
+    <div class="drawer-head"><h2>Sommaire</h2><button class="icon-btn" data-close-drawer aria-label="Fermer"><svg class="ico"><use href="#i-close"/></svg></button></div>
+    <ol id="summary-list" class="summary-list"></ol>
+    <div class="drawer-foot">
+      <button class="btn btn-ghost btn-sm" data-modal="publish"><svg class="ico"><use href="#i-share"/></svg>Partager</button>
+      <span class="meta tiny">55 min · 9 pages</span>
+    </div>
+  </aside>
+
+  <aside class="drawer notes-drawer" id="drawer-notes" aria-label="Notes de l'enseignant">
+    <div class="drawer-head"><h2>Notes du professeur</h2><button class="icon-btn" data-close-drawer aria-label="Fermer"><svg class="ico"><use href="#i-close"/></svg></button></div>
+    <div class="notes-body">
+      <div class="notes-timer"><svg class="ico"><use href="#i-clock"/></svg><strong id="notes-time">00:00</strong><button class="btn btn-soft btn-sm" id="timer-btn">Démarrer</button></div>
+      <div id="notes-content"></div>
+      <div class="notes-tip"><svg class="ico"><use href="#i-spark"/></svg>Astuce : en mode prof, les zones interactives sont entourées.</div>
+    </div>
+  </aside>
+
+  <div class="drawer-scrim" id="drawer-scrim" hidden></div>
+</section>
+
+<div id="modal-root"></div>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
