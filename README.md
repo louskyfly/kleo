@@ -2,96 +2,88 @@
 
 > **Nom de travail.** Remplacer « Kléo » par le nom définitif se fait en une passe (`grep -ri kleo`).
 
-Kléo transforme des documents de cours bruts — PDF, Word, photos, liens — en **séances interactives** prêtes à projeter et à manipuler sur iPad, pour l'histoire-géographie-EMC.
+Kléo transforme un cours en **séance interactive** : pages, frise, carte, cartes à retourner, étude de document, quiz noté, dépôt de devoir. Le tout se crée dans le navigateur, s'enregistre sur l'appareil et se partage par lien. Prévu pour être projeté et manipulé sur iPad.
 
-Le fond reste au professeur. La forme, la structure et l'interactivité sont prises en charge.
+**Version en ligne : [louskyfly.github.io/kleo](https://louskyfly.github.io/kleo/)**
+
+## Ce qui fonctionne en v2
+
+- **Bibliothèque réelle** : créer, dupliquer, renommer, supprimer, filtrer, importer et exporter des séances.
+- **Éditeur fonctionnel** : 9 types de pages, formulaires de contenu, réorganisation, duplication et suppression.
+- **Constructeur de quiz** : questions, réponses, bonne réponse, messages de correction, vrai/faux, aperçu immédiat.
+- **Mode séance** : score, correction question par question, sommaire, notes du professeur, minuteur, clavier et tactile.
+- **Enregistrement local** automatique (localStorage), avec indicateur « Enregistré ».
+- **Partage** : lien autonome contenant la séance, export/import `.json`.
+- **iPad** : tiroir d'édition tactile, cibles ≥ 44 px, glissement entre les pages.
 
 ## Aperçu
 
-| Bibliothèque | Éditeur |
+| Bibliothèque | Éditeur et constructeur de quiz |
 | --- | --- |
-| ![Bibliothèque](docs/previews/library.png) | ![Éditeur](docs/previews/editor.png) |
+| ![Bibliothèque](docs/previews/v2-library.png) | ![Éditeur](docs/previews/v2-quiz-editor.png) |
 
-| Frise interactive | Carte des idées |
+| Quiz joué sur iPad | Import et réglages |
 | --- | --- |
-| ![Frise](docs/previews/viewer-timeline.png) | ![Carte](docs/previews/viewer-map.png) |
+| ![Quiz iPad](docs/previews/v2-ipad-quiz.png) | ![Import](docs/previews/v2-import.png) |
 
-| Cartes à retourner | Étude de document |
+| Résultat du quiz | Partage |
 | --- | --- |
-| ![Cartes](docs/previews/viewer-cards.png) | ![Document](docs/previews/viewer-doc.png) |
+| ![Résultat](docs/previews/v2-quiz-result.png) | ![Partage](docs/previews/v2-share.png) |
 
-| Import | Dépôt de devoir |
-| --- | --- |
-| ![Import](docs/previews/import.png) | ![Dépôt](docs/previews/viewer-deposit.png) |
+## Utiliser Kléo
 
-D'autres captures sont dans [`docs/previews/`](docs/previews/) (iPad portrait, téléphone, quiz, synthèse).
+1. **Créer** une séance : titre, matière, niveau, durée, quiz initial.
+2. **Ouvrir l'éditeur** et choisir une page dans le plan.
+3. **Modifier** le contenu dans le panneau de droite (ou le tiroir « Éditer » sur iPad).
+4. **Ajouter une page** : frise, carte, cartes, document, quiz, dépôt, synthèse.
+5. **Aperçu** : jouer la séance, répondre au quiz, voir le score.
+6. **Partager** : copier le lien ou télécharger le fichier `.json`.
 
-## État du projet
+Raccourcis : `←` `→` dans le mode séance, `Échap` pour fermer, `Ctrl/⌘ + S` pour enregistrer, `Ctrl/⌘ + K` pour la recherche.
 
-| Élément | Statut |
-| --- | --- |
-| Recherche Genially (captures + analyse) | ✅ `docs/RECHERCHE-genially.md` |
-| Spécification produit & pipeline IA | ✅ `docs/PRODUIT.md` |
-| Maquette interactive (HTML/CSS/JS, sans build) | ✅ `mockup/` |
-| Application réelle (Next.js, base, IA) | ⏳ prochaine étape |
+## En local
 
-## Voir la maquette
-
-**En ligne : [louskyfly.github.io/kleo](https://louskyfly.github.io/kleo/)** — à ouvrir aussi depuis l'iPad.
-
-En local, aucune installation n'est nécessaire :
+Aucune installation :
 
 ```bash
-# à la racine du dépôt
-npx serve mockup
+npx serve app
 ```
 
-Puis ouvrir l'URL affichée. Ou simplement double-cliquer sur `mockup/index.html`.
-
-Parcours de démonstration :
-
-1. **Bibliothèque** → « Voir un exemple » ouvre la séance terminée.
-2. **Nouvelle séance** → déposer des fichiers (ou utiliser les fichiers déjà présents) → régler → **Générer**.
-3. **Éditeur** → plan de pages, blocs, accessibilité → **Aperçu**.
-4. **Mode séance** → frise cliquable, carte, cartes à retourner, document, quiz, dépôt de devoir.
-5. **Publier** → lien de partage et QR code.
-
-Navigation clavier dans le mode séance : `←` `→` `Échap`. Tactile : glisser horizontalement.
+Puis ouvrir l'URL affichée. Le dossier `app/` fonctionne aussi en double-cliquant sur `index.html`.
 
 ## Structure
 
 ```
+app/                    application v2 (aucune dépendance)
+  data.js               modèle, contenu de démonstration, stockage
+  slides.js             rendu des pages
+  editor.js             formulaires et constructeur de quiz
+  app.js                bibliothèque, éditeur, mode séance, partage
+  styles.css            design system et pages
+  v2.css                édition, tiroirs, formulaires
+  assets/europe.svg     fond de carte (Natural Earth, domaine public)
+mockup/                 maquette v1 conservée pour référence
 docs/
-  RECHERCHE-genially.md     analyse du site de référence + captures
-  PRODUIT.md                spécification, blocs, pipeline IA, roadmap
-  research/                 captures d'écran de Genially
-  previews/                 captures de la maquette
-mockup/
-  index.html                écrans de l'application
-  styles.css                design system + mode séance
-  app.js                    état, routage, interactions, contenu de la séance
-  assets/europe.svg         fond de carte (Natural Earth, domaine public)
+  RECHERCHE-genially.md analyse du site de référence
+  PRODUIT.md            spécification, pipeline IA, roadmap
+  previews/             captures des versions
 ```
 
-La maquette en ligne est publiée depuis la branche **`gh-pages`** (contenu du dossier `mockup/`), via GitHub Pages. Après une modification :
+## Limites assumées de la v2
 
-```bash
-git subtree push --prefix mockup origin gh-pages
-```
-
-## La séance de démonstration
-
-« **Des Lumières à la Révolution (1750–1815)** » — Histoire, 4e, 55 minutes, 9 pages :
-
-couverture · objectifs · frise chronologique interactive · carte des idées · cartes à retourner · étude de document · quiz · dépôt de devoir · synthèse.
+- **Tout est local** : les séances vivent dans le navigateur de l'appareil. Pas encore de compte ni de synchronisation.
+- **Pas encore d'IA** : les documents sont joints à la séance, mais Kléo ne les analyse pas. La trame est un point de départ à compléter.
+- **Lien de partage** : la séance entière est encodée dans l'URL. Elle peut être longue ; pour un partage fiable, préférer le fichier `.json`.
+- **Dépôt de devoir simulé** : l'élève peut choisir un fichier, rien n'est envoyé à un serveur.
+- **Pas d'export PDF/SCORM** pour l'instant.
 
 ## Prochaines étapes
 
-1. Valider la direction visuelle et le parcours de génération.
-2. Passer la maquette en Next.js + TypeScript, avec un vrai import PDF/DOCX.
-3. Brancher le moteur de structuration (LLM → JSON de séance) et l'éditeur.
-4. Comptes, stockage, partage, export PDF/SCORM.
-5. Tests en classe sur iPad, ajustements tactiles et accessibilité.
+1. Backend (comptes, stockage, synchronisation) et vrai partage par identifiant court.
+2. Import PDF/DOCX et extraction de texte, puis structuration assistée (LLM → plan JSON).
+3. Dépôt de copies côté élève et suivi des résultats.
+4. Export PDF/SCORM, mode présentation en direct.
+5. Tests en classe sur iPad et audit d'accessibilité complet.
 
 ## Licence
 

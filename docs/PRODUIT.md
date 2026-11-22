@@ -9,6 +9,19 @@ Kléo prend des documents scolaires bruts (PDF, DOCX, TXT, photos, liens) et pro
 **Ce que Kléo fait** : découper, hiérarchiser, illustrer, mettre en page, rendre interactif, vérifier l'accessibilité.
 **Ce que Kléo ne fait pas** : inventer le propos historique. Le professeur valide et peut tout éditer.
 
+## État livré — v2 (client)
+
+La v2 transforme la maquette en outil auteur utilisable :
+
+- bibliothèque persistante (localStorage) : créer, dupliquer, renommer, supprimer, filtrer ;
+- éditeur de 9 types de pages avec formulaires réels et aperçu immédiat ;
+- constructeur de quiz : questions, réponses, bonne réponse, corrections, vrai/faux, score ;
+- mode séance data-driven : sommaire, notes, minuteur, score, tactile et clavier ;
+- partage par lien autonome, export/import `.json` ;
+- édition iPad en tiroir.
+
+Ce qui reste hors de la v2 : comptes et synchronisation, analysis réelle des PDF/DOCX, génération IA du plan, dépôt de copies côté serveur, export PDF/SCORM.
+
 ## 2. Utilisateurs
 
 | Persona | Besoin | Contrainte |
@@ -150,8 +163,8 @@ Documents ──▶ 1. Extraction ──▶ 2. Analyse ──▶ 3. Plan ──�
 
 | Étape | Livrable | Durée indicative |
 | --- | --- | --- |
-| 0 | Maquette cliquable + dépôt (fait) | — |
-| 1 | Application Next.js, bibliothèque, éditeur statique | 1–2 semaines |
+| 0 | Application cliente v2 : bibliothèque, éditeur, quiz, partage (fait) | — |
+| 1 | Backend, comptes et synchronisation | 1–2 semaines |
 | 2 | Import réel + extraction | 1 semaine |
 | 3 | Génération IA + contrat JSON | 1–2 semaines |
 | 4 | Comptes, partage, dépôt élève | 1 semaine |
