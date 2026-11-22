@@ -37,7 +37,9 @@ D'autres captures sont dans [`docs/previews/`](docs/previews/) (iPad portrait, t
 
 ## Voir la maquette
 
-Aucune installation n'est nécessaire :
+**En ligne : [louskyfly.github.io/kleo](https://louskyfly.github.io/kleo/)** — à ouvrir aussi depuis l'iPad.
+
+En local, aucune installation n'est nécessaire :
 
 ```bash
 # à la racine du dépôt
@@ -64,13 +66,17 @@ docs/
   PRODUIT.md                spécification, blocs, pipeline IA, roadmap
   research/                 captures d'écran de Genially
   previews/                 captures de la maquette
-  github-pages-workflow.yml modèle de workflow (nécessite le scope `workflow`)
 mockup/
   index.html                écrans de l'application
   styles.css                design system + mode séance
   app.js                    état, routage, interactions, contenu de la séance
   assets/europe.svg         fond de carte (Natural Earth, domaine public)
-.github/workflows/pages.yml déploiement GitHub Pages de la maquette
+```
+
+La maquette en ligne est publiée depuis la branche **`gh-pages`** (contenu du dossier `mockup/`), via GitHub Pages. Après une modification :
+
+```bash
+git subtree push --prefix mockup origin gh-pages
 ```
 
 ## La séance de démonstration
