@@ -3,3 +3,7 @@ node_modules/
 Thumbs.db
 *.log
 .vercel/
+_*.cjs
+_*.mjs
+_*.png
+firebase-debug.log
