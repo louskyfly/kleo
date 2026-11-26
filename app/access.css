@@ -1,0 +1,100 @@
+/* ============================================================
+   Kléo — accès de classe, panneau et QR
+   ============================================================ */
+
+/* Écran d'accès élève */
+.gate-screen {
+  position: fixed; inset: 0; z-index: 600;
+  display: grid; place-items: center; padding: 28px;
+  background:
+    radial-gradient(80% 100% at 50% 0%, #244F45 0%, transparent 65%),
+    radial-gradient(70% 90% at 50% 110%, #2A2015 0%, transparent 65%),
+    #0C211C;
+  color: var(--paper);
+  transition: opacity .32s var(--ease);
+}
+.gate-screen::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background-image: radial-gradient(rgba(247, 242, 231, .12) .6px, transparent .6px);
+  background-size: 6px 6px; opacity: .3;
+}
+.gate-screen.is-hidden { opacity: 0; pointer-events: none; }
+.gate-screen[hidden] { display: none; }
+.gate-box { position: relative; z-index: 2; width: min(620px, 100%); text-align: center; }
+.gate-brand { font-family: var(--font-display); font-size: 30px; font-weight: 600; letter-spacing: -.03em; }
+.gate-brand span { color: var(--safran); }
+.gate-icon {
+  width: 66px; height: 66px; margin: 26px auto 16px; border-radius: 50%;
+  display: grid; place-items: center; color: var(--safran);
+  border: 1px solid rgba(247, 242, 231, .18);
+  background: rgba(247, 242, 231, .05);
+}
+.gate-icon .ico { width: 27px; height: 27px; }
+.gate-kicker { font-size: 10px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: #E7C57D; }
+.gate-box h1 { margin: 10px 0 0; font-family: var(--font-display); font-size: clamp(38px, 6vw, 56px); font-weight: 500; letter-spacing: -.035em; line-height: 1; }
+.gate-box p { max-width: 40em; margin: 14px auto 0; font-size: 14px; line-height: 1.65; color: rgba(247, 242, 231, .7); }
+.gate-actions { display: flex; justify-content: center; align-items: center; min-height: 52px; margin-top: 22px; }
+.gate-loader {
+  width: 26px; height: 26px; border-radius: 50%;
+  border: 2px solid rgba(247, 242, 231, .2); border-top-color: var(--safran);
+  animation: gateSpin 1s linear infinite;
+}
+@keyframes gateSpin { to { transform: rotate(360deg); } }
+.gate-teacher {
+  display: inline-block; margin-top: 28px; font-size: 11px; color: rgba(247, 242, 231, .45);
+  border-bottom: 1px solid rgba(247, 242, 231, .2); padding-bottom: 2px;
+}
+.gate-teacher:hover { color: var(--paper); border-color: var(--paper); }
+.gate-foot { margin-top: 16px !important; font-size: 10px !important; color: rgba(247, 242, 231, .32) !important; }
+
+/* Panneau professeur */
+body.is-prof .app { grid-template-columns: minmax(0, 1fr); }
+body.is-prof .rail { display: none; }
+.prof-bar { background: rgba(251, 246, 234, .92); }
+.prof-wrap { width: min(1120px, 100%); margin: 0 auto; padding: 30px 40px 60px; }
+.prof-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.prof-card { display: flex; flex-direction: column; gap: 12px; }
+.prof-card-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.prof-card h2 { margin-top: 6px; font-family: var(--font-display); font-size: 24px; font-weight: 500; letter-spacing: -.025em; }
+.prof-card .meta { line-height: 1.55; }
+.prof-card .btn { align-self: flex-start; }
+.prof-login { width: min(560px, 100%); margin: 8vh auto 0; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 10px; }
+#prof-login[hidden], #prof-dashboard[hidden] { display: none !important; }
+.prof-login h2 { font-family: var(--font-display); font-size: 30px; font-weight: 500; letter-spacing: -.025em; }
+.prof-login p { max-width: 36em; font-size: 12.5px; line-height: 1.6; color: var(--muted); }
+.prof-code-row { display: flex; gap: 8px; width: min(360px, 100%); margin-top: 12px; }
+.prof-code-row .einput { flex: 1; text-align: center; letter-spacing: .2em; font-weight: 600; }
+.prof-code-row .btn { flex: none; }
+.prof-qr-zone { display: flex; flex-direction: column; align-items: center; gap: 10px; padding-top: 4px; }
+.qr-box {
+  width: 220px; height: 220px; padding: 10px; border-radius: 12px;
+  border: 1px solid var(--line); background: #fff;
+  display: grid; place-items: center;
+}
+.qr-box img, .qr-box canvas { width: 100% !important; height: 100% !important; display: block; }
+.prof-code { display: flex; align-items: baseline; gap: 8px; font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.prof-code strong { font-family: var(--font-mono); font-size: 20px; letter-spacing: .16em; color: var(--ink); }
+.prof-help { margin-top: 18px; display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
+.prof-help strong { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.prof-help p { max-width: 70em; font-size: 11px; line-height: 1.6; color: var(--muted); }
+.prof-help .btn { margin-top: 4px; }
+
+#prof-gate-pill.is-open { background: var(--ok-soft); color: var(--ok); }
+#prof-gate-pill.is-closed { background: var(--bad-soft); color: var(--bad); }
+
+@media (min-width: 1100px) {
+  .prof-grid { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 900px) {
+  .prof-wrap { padding: 20px 20px 80px; }
+  .prof-grid { grid-template-columns: 1fr; }
+  .prof-login { margin: 4vh auto 0; }
+}
+@media (max-width: 700px) {
+  .gate-screen { padding: 20px; }
+  .gate-box h1 { font-size: 38px; }
+  .prof-wrap { padding: 16px 16px 90px; }
+  .prof-code-row { flex-direction: column; }
+  .prof-code-row .btn { width: 100%; }
+  .qr-box { width: 200px; height: 200px; }
+}

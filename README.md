@@ -11,6 +11,7 @@ Kléo transforme un cours en **séance interactive** : pages, frise, carte, cart
 - **Bibliothèque réelle** : créer, dupliquer, renommer, supprimer, filtrer, importer et exporter des séances.
 - **Projets invités** : « Mystère en Égypte » (6e), fiche, structure en 5 actes et lancement de l'enquête.
 - **Structures de séance** : découverte, analyse de document, enquête, révision, évaluation, page blanche.
+- **Classe et QR** : panneau professeur, ouverture/fermeture de l'accès au site, QR de séance et QR du projet.
 - **Éditeur fonctionnel** : 9 types de pages, formulaires de contenu, réorganisation, duplication et suppression.
 - **Constructeur de quiz** : questions, réponses, bonne réponse, messages de correction, vrai/faux, aperçu immédiat.
 - **Mode séance** : score, correction question par question, sommaire, notes du professeur, minuteur, clavier et tactile.
@@ -36,6 +37,21 @@ Kléo transforme un cours en **séance interactive** : pages, frise, carte, cart
 | --- | --- |
 | ![Fiche projet](docs/previews/v2-project-modal.png) | ![Structures](docs/previews/v2-import-templates.png) |
 
+| Panneau d'accès et QR | Écran élève quand l'accès est fermé |
+| --- | --- |
+| ![Panneau](docs/previews/v2-prof-panel.png) | ![Séance fermée](docs/previews/v2-student-blocked.png) |
+
+## Classe, QR et verrou
+
+Le panneau d'accès est accessible par le lien **« Panneau »** de la barre latérale, par le pied de page, ou par **« Je suis le professeur »** sur l'écran de blocage. Code par défaut : **2026**.
+
+- **Ouvrir / fermer l'accès** : quand il est fermé, tous les élèves qui ouvrent le site voient « Séance fermée ».
+- **Publier une séance** : choisissez la séance, cliquez sur « Publier et générer le QR ». Le QR contient un lien court (`#/join/CODE`) ; les élèves scannent et la séance s'ouvre.
+- **QR du projet** : un QR prêt à scanner vers « Mystère en Égypte ».
+- **Télécharger le QR** : pour l'imprimer ou le projeter.
+
+La séance et le verrou passent par un broker MQTT public : internet est nécessaire. C'est un **verrou de classe**, pas une protection forte, et il ne faut pas y publier de données personnelles.
+
 ## Projet invité : Mystère en Égypte
 
 La bibliothèque accueille aussi des **projets interactifs** réalisés en dehors de Kléo.
@@ -58,6 +74,8 @@ Le jeu reste hébergé séparément : [louskyfly.github.io/mystere-en-egypte](ht
 6. **Partager** : copier le lien ou télécharger le fichier `.json`.
 
 Les **projets interactifs** se trouvent dans la bibliothèque, sous « Projets interactifs » : ouvrir la fiche pour voir la structure, puis lancer l'enquête.
+
+Pour la classe : ouvrir **Panneau**, entrer le code **2026**, publier la séance et faire scanner le QR. Le même panneau ouvre ou ferme l'accès au site.
 
 Raccourcis : `←` `→` dans le mode séance, `Échap` pour fermer, `Ctrl/⌘ + S` pour enregistrer, `Ctrl/⌘ + K` pour la recherche.
 
@@ -82,6 +100,9 @@ app/                    application v2 (aucune dépendance)
   styles.css            design system et pages
   v2.css                édition, tiroirs, formulaires
   projects.css          projets invités et structures de séance
+  access.css            écran d'accès, panneau et QR
+  live.js               porte de classe, MQTT, publication de séance, QR
+  vendor/               mqtt.min.js, qrcode.min.js
   projects/             visuels des projets
   assets/europe.svg     fond de carte (Natural Earth, domaine public)
 mockup/                 maquette v1 conservée pour référence
@@ -106,6 +127,7 @@ git branch -D gh-pages-deploy
 - **Tout est local** : les séances vivent dans le navigateur de l'appareil. Pas encore de compte ni de synchronisation.
 - **Pas encore d'IA** : les documents sont joints à la séance, mais Kléo ne les analyse pas. La trame est un point de départ à compléter.
 - **Lien de partage** : la séance entière est encodée dans l'URL. Elle peut être longue ; pour un partage fiable, préférer le fichier `.json`.
+- **Classe et QR** : le verrou et les séances publiées passent par un broker MQTT public (`test.mosquitto.org`). Internet est nécessaire ; ce n'est pas une sécurité forte.
 - **Dépôt de devoir simulé** : l'élève peut choisir un fichier, rien n'est envoyé à un serveur.
 - **Pas d'export PDF/SCORM** pour l'instant.
 
@@ -113,9 +135,10 @@ git branch -D gh-pages-deploy
 
 1. Backend (comptes, stockage, synchronisation) et vrai partage par identifiant court.
 2. Import PDF/DOCX et extraction de texte, puis structuration assistée (LLM → plan JSON).
-3. Dépôt de copies côté élève et suivi des résultats.
-4. Export PDF/SCORM, mode présentation en direct.
-5. Tests en classe sur iPad et audit d'accessibilité complet.
+3. Verrou et publication côté serveur (le MQTT public devient un vrai backend).
+4. Dépôt de copies côté élève et suivi des résultats.
+5. Export PDF/SCORM, mode présentation en direct.
+6. Tests en classe sur iPad et audit d'accessibilité complet.
 
 ## Licence
 
