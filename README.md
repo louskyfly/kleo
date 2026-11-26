@@ -16,6 +16,8 @@ npx serve .
 | `#/editor` | Éditeur de la séance courante |
 | `#/viewer/0…n` | Mode séance |
 | `#/partage/<données>` | Import d'une séance partagée, puis lecture |
+| `#/prof` | Panneau d'accès professeur (code 2026) |
+| `#/join/<code>` | Séance publiée par QR |
 
 ## Séances et projets
 
@@ -55,6 +57,17 @@ Les schémas de formulaire sont dans `data.js` (`SCHEMAS`), le rendu dans `slide
 - Les cibles tactiles font au moins 44 px.
 - Le mode séance se tourne au doigt.
 
+## Classe, verrou et QR
+
+- `live.js` gère la porte d'accès, la publication de séance et les QR.
+- Broker : `wss://test.mosquitto.org:8081/mqtt` (public, messages retenus).
+- Sujet du verrou : `kleo/live/7d3f9a1c/gate` ; séances : `kleo/live/7d3f9a1c/session/<code>`.
+- Code professeur : `2026` (`TEACHER_CODE` dans `live.js`).
+- Publier une séance depuis `#/prof` crée un code à 5 caractères et un QR vers `#/join/<code>`.
+- Le verrou est global : fermé, tous les élèves voient « Séance fermée ».
+- Ce n'est pas une sécurité forte : le code et les sujets sont dans le client, et le broker est public. Ne pas y publier de données personnelles.
+- `vendor/mqtt.min.js` (MQTT.js, MIT) et `vendor/qrcode.min.js` (qrcodejs, MIT).
+
 ## Tests manuels utiles
 
 1. Modifier le titre d'une page, recharger : la modification est conservée.
@@ -64,6 +77,8 @@ Les schémas de formulaire sont dans `data.js` (`SCHEMAS`), le rendu dans `slide
 5. Exporter le `.json` puis le réimporter.
 6. Ouvrir la fiche « Mystère en Égypte » et lancer l'enquête.
 7. Créer une séance avec chaque structure (découverte, analyse, enquête, révision, évaluation).
+8. Panneau → publier une séance → ouvrir le lien `#/join/<code>` dans un autre navigateur.
+9. Panneau → fermer l'accès → recharger le lien élève : « Séance fermée ».
 
 ## Limites
 

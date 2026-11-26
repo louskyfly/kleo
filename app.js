@@ -419,6 +419,60 @@
   }
 
   /* ------------------------------------------------------------
+     Panneau d'accès professeur
+     ------------------------------------------------------------ */
+  function updateProfGate(g) {
+    const pill = $('#prof-gate-pill');
+    const btn = $('#prof-gate-btn');
+    const note = $('#prof-gate-note');
+    if (!pill || !btn) return;
+    const open = !g.known ? true : g.open;
+    pill.textContent = !g.known ? 'Connexion…' : open ? 'Accès ouvert' : 'Accès fermé';
+    pill.className = 'badge ' + (open ? 'is-open' : 'is-closed');
+    btn.textContent = open ? 'Fermer l’accès' : 'Ouvrir l’accès';
+    btn.className = 'btn btn-lg ' + (open ? 'btn-danger' : 'btn-primary');
+    if (note) {
+      note.textContent = g.updatedAt
+        ? `Dernier changement : ${new Date(g.updatedAt).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}.`
+        : 'Le changement s’applique en quelques secondes.';
+    }
+  }
+
+  function showPublishedQr(s) {
+    const zone = $('#prof-qr-zone');
+    const qr = $('#prof-qr');
+    const codeEl = $('#prof-code-value');
+    if (!zone || !qr) return;
+    if (!s || !s.liveCode) { zone.hidden = true; return; }
+    zone.hidden = false;
+    if (codeEl) codeEl.textContent = s.liveCode;
+    KleoLive.makeQR(qr, KleoLive.joinURL(s.liveCode));
+    const copy = $('#prof-copy');
+    if (copy) copy.dataset.link = KleoLive.joinURL(s.liveCode);
+  }
+
+  function renderProf() {
+    const login = $('#prof-login');
+    const dash = $('#prof-dashboard');
+    if (!login || !dash) return;
+    const authed = sessionStorage.getItem('kleo_teacher') === '1';
+    login.hidden = authed;
+    dash.hidden = !authed;
+    if (!authed) return;
+
+    const select = $('#prof-session');
+    if (select) {
+      select.innerHTML = state.sessions.length
+        ? state.sessions.map((s) => `<option value="${s.id}" ${s.id === state.currentId ? 'selected' : ''} title="${esc(s.title)}">${esc(s.title)}</option>`).join('')
+        : '<option value="">Aucune séance</option>';
+    }
+    updateProfGate(KleoLive.gateState());
+    const project = (D.PROJECTS || [])[0];
+    if (project) KleoLive.makeQR($('#prof-project-qr'), project.url);
+    showPublishedQr(state.sessions.find((s) => s.id === (select ? select.value : state.currentId)));
+  }
+
+  /* ------------------------------------------------------------
      Mode séance
      ------------------------------------------------------------ */
   function openViewer(start = 0) {
@@ -536,6 +590,11 @@
               <div><strong>Lien autonome</strong><p>La séance entière est encodée dans le lien. Idéal pour envoyer par mail ou déposer dans l’ENT.</p></div>
             </div>
             ${tooLong ? `<p class="form-warn">Ce lien est long. Préférez le fichier .json pour un partage fiable.</p>` : ''}
+            <div class="share-row">
+              <div class="share-art"><svg class="ico"><use href="#i-qr"/></svg></div>
+              <div><strong>QR pour la classe</strong><p>Publiez la séance depuis le panneau d’accès pour obtenir un QR court à scanner.</p></div>
+              <button class="btn btn-soft btn-sm" data-go-prof>Ouvrir</button>
+            </div>
             <div class="share-options">
               <div class="share-opt"><div><span>Fichier de la séance</span><small>Réimportable dans Kléo</small></div><button class="btn btn-soft btn-sm" data-export-json><svg class="ico"><use href="#i-download"/></svg>JSON</button></div>
               <div class="share-opt"><div><span>Tester le lien</span><small>Ouvre le lien dans un nouvel onglet</small></div><button class="btn btn-soft btn-sm" data-open-share>Ouvrir</button></div>
@@ -682,18 +741,20 @@
   /* ------------------------------------------------------------
      Navigation
      ------------------------------------------------------------ */
-  const SCREENS = ['library', 'import', 'generate', 'editor'];
+  const SCREENS = ['library', 'import', 'generate', 'editor', 'prof'];
   function parseHash() { return location.hash.replace(/^#\/?/, '') || 'library'; }
 
   function showScreen(name) {
     state.screen = name;
     if (name !== 'generate') clearGeneration();
     document.body.classList.toggle('is-editing', name === 'editor');
+    document.body.classList.toggle('is-prof', name === 'prof');
     SCREENS.forEach((s) => $('#screen-' + s)?.classList.toggle('is-active', s === name));
     $$('.rail-link').forEach((a) => a.classList.toggle('is-active', a.dataset.nav === name));
     if (name === 'editor') { renderEditor(true); closeInspector(); }
     if (name === 'library') renderLibrary();
     if (name === 'import') { fillImportForm(); renderFiles(); }
+    if (name === 'prof') renderProf();
     if (name !== 'viewer') window.scrollTo({ top: 0 });
   }
 
@@ -701,6 +762,37 @@
     const target = '#/' + name;
     if (location.hash === target) route();
     else location.hash = target;
+  }
+
+  function joinSession(code) {
+    const clean = String(code || '').toUpperCase();
+    if (!clean) { showScreen('library'); return; }
+    const g = window.KleoLive ? KleoLive.gateState() : { known: true, open: true };
+    if (g.known && !g.open) { showScreen('library'); KleoLive.applyGate(); return; }
+    KleoLive.beginJoin();
+    toast('Ouverture de la séance…');
+    KleoLive.fetchSession(clean, (incoming) => {
+      if (!incoming || !Array.isArray(incoming.pages) || !incoming.pages.length) {
+        toast('Séance introuvable ou expirée. Demandez le QR au professeur.');
+        showScreen('library');
+        KleoLive.endJoin();
+        return;
+      }
+      incoming.id = 'live_' + clean;
+      incoming.updatedAt = D.now();
+      incoming.title = incoming.title || 'Séance de classe';
+      const existing = state.sessions.findIndex((s) => s.id === incoming.id);
+      if (existing >= 0) state.sessions[existing] = incoming;
+      else state.sessions.push(incoming);
+      state.currentId = incoming.id;
+      state.pageIndex = 0;
+      state.quizStates = {};
+      save(true);
+      renderLibrary();
+      openViewer(0);
+      KleoLive.endJoin();
+      toast('Séance chargée.');
+    });
   }
 
   function route() {
@@ -726,6 +818,7 @@
       closeDrawer();
     }
     closeInspector();
+    if (name === 'join') { joinSession(arg); return; }
     if (name === 'generate' && !state.genTimers.length) {
       showScreen(state.currentId ? 'editor' : 'library');
       return;
@@ -753,6 +846,7 @@
 
     const projectOpen = t.closest('[data-project-open]');
     if (projectOpen) { openModal('project', projectOpen.dataset.projectOpen); return; }
+    if (t.closest('[data-go-prof]')) { closeModal(); go('prof'); return; }
     const projectLaunch = t.closest('[data-project-launch]');
     if (projectLaunch) {
       const pr = (D.PROJECTS || []).find((x) => x.id === projectLaunch.dataset.projectLaunch);
@@ -771,6 +865,87 @@
       state.importOpts.template = tplOpt.dataset.template;
       renderTemplates();
       updateEstimate();
+      return;
+    }
+
+    if (t.closest('#prof-login-btn')) {
+      const input = $('#prof-code');
+      const msg = $('#prof-code-msg');
+      if (input && input.value.trim() === KleoLive.TEACHER_CODE) {
+        sessionStorage.setItem('kleo_teacher', '1');
+        if (msg) msg.hidden = true;
+        renderProf();
+      } else {
+        if (msg) msg.hidden = false;
+        input?.select();
+      }
+      return;
+    }
+    if (t.closest('#prof-gate-btn')) {
+      const g = KleoLive.gateState();
+      const open = g.known ? g.open : true;
+      const next = !open;
+      if (!window.confirm(next ? 'Fermer l’accès au site pour les élèves ?' : 'Rouvrir l’accès au site ?')) return;
+      const btn = $('#prof-gate-btn');
+      const note = $('#prof-gate-note');
+      if (btn) btn.disabled = true;
+      if (note) note.textContent = 'Publication en cours…';
+      KleoLive.publishGate(next, (err) => {
+        if (btn) btn.disabled = false;
+        if (err) toast('Publication impossible. Vérifiez la connexion.');
+        else toast(next ? 'Accès fermé. Les élèves voient « Séance fermée ».' : 'Accès rouvert.');
+        updateProfGate(KleoLive.gateState());
+      });
+      return;
+    }
+    if (t.closest('#prof-publish')) {
+      const select = $('#prof-session');
+      const s = state.sessions.find((x) => x.id === (select ? select.value : ''));
+      if (!s) { toast('Aucune séance à publier.'); return; }
+      const code = s.liveCode || KleoLive.randomCode();
+      s.liveCode = code;
+      save(true);
+      const btn = $('#prof-publish');
+      const old = btn ? btn.innerHTML : '';
+      if (btn) { btn.disabled = true; btn.textContent = 'Publication…'; }
+      KleoLive.publishSession(s, code, (err) => {
+        if (btn) { btn.disabled = false; btn.innerHTML = old; }
+        if (err) { toast('Publication impossible. Vérifiez la connexion.'); return; }
+        showPublishedQr(s);
+        toast('Séance publiée. Le QR est prêt.');
+      });
+      return;
+    }
+    if (t.closest('#prof-copy')) {
+      const link = t.closest('#prof-copy').dataset.link;
+      if (!link) return;
+      copyText(link).then(() => toast('Lien copié.')).catch(() => toast('Copie impossible.'));
+      return;
+    }
+    if (t.closest('#prof-download')) {
+      const canvas = $('#prof-qr canvas');
+      const img = $('#prof-qr img');
+      const url = img && img.src ? img.src : canvas ? canvas.toDataURL('image/png') : '';
+      if (!url) { toast('Publiez d’abord une séance.'); return; }
+      const code = ($('#prof-code-value')?.textContent || 'seance').trim();
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `qr-kleo-${code}.png`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      toast('QR téléchargé.');
+      return;
+    }
+    if (t.closest('#prof-logout')) {
+      sessionStorage.removeItem('kleo_teacher');
+      renderProf();
+      toast('Déconnecté du panneau.');
+      return;
+    }
+    if (t.closest('#prof-project-open')) {
+      const project = (D.PROJECTS || [])[0];
+      if (project) window.open(project.url, '_blank', 'noopener');
       return;
     }
 
@@ -1236,6 +1411,7 @@
     }
     if (el.id === 'file-input') { addImportFiles(el.files); el.value = ''; }
     if (el.id === 'opt-quiz') updateEstimate();
+    if (el.id === 'prof-session') showPublishedQr(state.sessions.find((s) => s.id === el.value));
     if (el.id === 'level') { state.importOpts.level = el.value; }
     if (el.id === 'import-json-input') {
       const f = el.files && el.files[0];
@@ -1307,6 +1483,7 @@
     }
     if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); $('.search input')?.focus(); return; }
     if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 's') { e.preventDefault(); save(true); toast('Séance enregistrée.'); return; }
+    if (e.target.id === 'prof-code' && e.key === 'Enter') { e.preventDefault(); $('#prof-login-btn')?.click(); return; }
     if (!state.viewer) return;
     if (e.key === 'ArrowRight') { e.preventDefault(); step(1); }
     if (e.key === 'ArrowLeft') { e.preventDefault(); step(-1); }
@@ -1334,6 +1511,7 @@
   /* ------------------------------------------------------------
      Démarrage
      ------------------------------------------------------------ */
+  if (window.KleoLive) KleoLive.onGate(updateProfGate);
   renderLibrary();
   renderFiles();
   route();
