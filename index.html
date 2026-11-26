@@ -94,8 +94,7 @@
     </nav>
 
     <div class="rail-foot">
-      <button class="rail-link" data-toast="Centre d'aide — à venir"><svg class="ico"><use href="#i-help"/></svg><span>Aide</span></button>
-      <button class="avatar" data-toast="Compte de Lucas B." aria-label="Compte de Lucas B.">LB</button>
+      <a class="rail-link" href="#/settings" data-rail data-nav="settings"><svg class="ico"><use href="#i-settings"/></svg><span>Réglages</span></a>
     </div>
   </aside>
 
@@ -461,6 +460,63 @@
       </div>
     </section>
 
+    <!-- ============================ RÉGLAGES ============================ -->
+    <section class="screen" id="screen-settings" aria-labelledby="settings-title">
+      <header class="focusbar">
+        <button class="icon-btn" data-go="library" aria-label="Retour à la bibliothèque"><svg class="ico"><use href="#i-arrow-left"/></svg></button>
+        <div class="focusbar-title">
+          <p class="crumb">Clio / Réglages</p>
+          <h1 id="settings-title">Réglages</h1>
+        </div>
+      </header>
+
+      <div class="prof-wrap settings-wrap">
+        <section class="panel settings-card">
+          <h2>Affichage</h2>
+          <p class="meta">Réglages enregistrés sur cet appareil.</p>
+
+          <label class="setting-row" for="setTextSize">
+            <span><strong>Taille du texte</strong><small>Pour projeter au tableau ou lire plus confortablement.</small></span>
+            <span class="select-wrap">
+              <select id="setTextSize" class="einput">
+                <option value="normal">Normale</option>
+                <option value="large">Grande</option>
+                <option value="xl">Très grande</option>
+              </select>
+              <svg class="ico"><use href="#i-chevron"/></svg>
+            </span>
+          </label>
+
+          <label class="setting-row" for="setDescriptions">
+            <span><strong>Afficher les descriptions</strong><small>Les textes sous le titre de chaque expérience.</small></span>
+            <span class="switch"><input type="checkbox" id="setDescriptions"><span></span></span>
+          </label>
+
+          <label class="setting-row" for="setCompact">
+            <span><strong>Cartes compactes</strong><small>Masquer les étiquettes et les descriptions, garder l’essentiel.</small></span>
+            <span class="switch"><input type="checkbox" id="setCompact"><span></span></span>
+          </label>
+        </section>
+
+        <section class="panel settings-card">
+          <h2>Textes</h2>
+          <p class="meta">Les textes modifiés depuis « Modifier les textes » sont partagés à tous les appareils.</p>
+          <button type="button" class="btn btn-ghost" id="setResetTexts">Rétablir les textes d’origine</button>
+        </section>
+
+        <section class="panel settings-card">
+          <h2>Accès</h2>
+          <p class="meta">Le panneau permet d’ouvrir ou fermer chaque expérience et d’afficher les QR.</p>
+          <a class="btn btn-ghost" href="#/prof"><svg class="ico"><use href="#i-lock"/></svg>Panneau d’accès</a>
+        </section>
+
+        <section class="panel settings-card">
+          <h2>Application</h2>
+          <p class="meta" id="settingsVersion">Clio · version locale</p>
+          <button type="button" class="btn btn-ghost" id="setResetPrefs">Rétablir les réglages par défaut</button>
+        </section>
+      </div>
+    </section>
   </main>
 </div>
 

@@ -20,6 +20,89 @@
     { id: 'geo', label: 'Géographie', icon: 'i-planet', line: 'Territoires, cartes et enjeux du monde d’aujourd’hui.' }
   ];
   const subjectFilters = { histoire: 'all', geo: 'all' };
+  const SETTINGS_KEY = 'clio_settings';
+  const DEFAULT_SETTINGS = { textSize: 'normal', descriptions: true, compact: false };
+  let settings = { ...DEFAULT_SETTINGS };
+
+  function loadSettings() {
+    try {
+      const raw = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}');
+      settings = { ...DEFAULT_SETTINGS, ...raw };
+      if (!['normal', 'large', 'xl'].includes(settings.textSize)) settings.textSize = 'normal';
+    } catch (e) {
+      settings = { ...DEFAULT_SETTINGS };
+    }
+  }
+
+  function saveSettings() {
+    try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings)); } catch (e) {}
+  }
+
+  function applySettings() {
+    const sizes = { normal: '', large: '110%', xl: '120%' };
+    document.documentElement.style.fontSize = sizes[settings.textSize] || '';
+    document.body.classList.toggle('hide-descriptions', settings.descriptions === false);
+    document.body.classList.toggle('compact-cards', settings.compact === true);
+  }
+
+  function renderSettings() {
+    const size = document.getElementById('setTextSize');
+    const descriptions = document.getElementById('setDescriptions');
+    const compact = document.getElementById('setCompact');
+    if (size) size.value = settings.textSize;
+    if (descriptions) descriptions.checked = settings.descriptions !== false;
+    if (compact) compact.checked = settings.compact === true;
+  }
+
+  function bindSettings() {
+    const size = document.getElementById('setTextSize');
+    if (size) {
+      size.addEventListener('change', () => {
+        settings.textSize = size.value;
+        applySettings();
+        saveSettings();
+      });
+    }
+    const descriptions = document.getElementById('setDescriptions');
+    if (descriptions) {
+      descriptions.addEventListener('change', () => {
+        settings.descriptions = descriptions.checked;
+        applySettings();
+        saveSettings();
+        renderProjects();
+      });
+    }
+    const compact = document.getElementById('setCompact');
+    if (compact) {
+      compact.addEventListener('change', () => {
+        settings.compact = compact.checked;
+        applySettings();
+        saveSettings();
+      });
+    }
+    const resetTexts = document.getElementById('setResetTexts');
+    if (resetTexts) {
+      resetTexts.addEventListener('click', () => {
+        textOverrides = {};
+        if (window.KleoLive) KleoLive.publishTexts({}, (err) => {
+          if (err) toast('Connexion impossible.');
+        });
+        renderProjects();
+        toast('Textes d’origine rétablis.');
+      });
+    }
+    const resetPrefs = document.getElementById('setResetPrefs');
+    if (resetPrefs) {
+      resetPrefs.addEventListener('click', () => {
+        settings = { ...DEFAULT_SETTINGS };
+        applySettings();
+        saveSettings();
+        renderSettings();
+        renderProjects();
+        toast('Réglages par défaut.');
+      });
+    }
+  }
   let editTexts = false;
   let textOverrides = {};
   let lastTextsJson = '';
@@ -913,7 +996,7 @@
   /* ------------------------------------------------------------
      Navigation
      ------------------------------------------------------------ */
-  const SCREENS = ['library', 'import', 'generate', 'editor', 'prof'];
+  const SCREENS = ['library', 'import', 'generate', 'editor', 'prof', 'settings'];
   function parseHash() { return location.hash.replace(/^#\/?/, '') || 'library'; }
 
   function showScreen(name) {
@@ -928,6 +1011,7 @@
     if (name === 'library') renderLibrary();
     if (name === 'import') { fillImportForm(); renderFiles(); }
     if (name === 'prof') renderProf();
+    if (name === 'settings') renderSettings();
     if (name !== 'viewer') window.scrollTo({ top: 0 });
   }
 
@@ -1790,6 +1874,9 @@
     });
   }
 
+  loadSettings();
+  applySettings();
+  bindSettings();
   renderLibrary();
   renderFiles();
   route();
