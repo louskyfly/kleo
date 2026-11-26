@@ -8,6 +8,13 @@
   const D = window.KleoData;
   const S = window.KleoSlides;
   const E = window.KleoEditor;
+
+  /* Mode bibliothèque : on ne garde que les expériences interactives.
+     L'atelier (import, génération, éditeur, séances) reste dans le code
+     mais n'est plus accessible depuis l'interface. Passer à false pour
+     le réafficher. */
+  const LIBRARY_ONLY = true;
+
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
   const esc = S.esc;
@@ -123,22 +130,34 @@
 
   function projectCard(p) {
     const subject = (D.SUBJECTS[p.subject] || D.SUBJECTS.histoire).label;
-    return `<article class="project-card">
-      <button class="project-cover" data-project-open="${p.id}" aria-label="Ouvrir la fiche ${esc(p.title)}">
+    const coverInner = `
         <img src="${esc(p.cover)}" alt="Aperçu de ${esc(p.title)}" loading="lazy">
-        <span class="project-badge">Projet interactif</span>
-        <span class="project-play"><svg class="ico"><use href="#i-play"/></svg></span>
-      </button>
-      <div class="project-body">
-        <div class="badge-row">
-          <span class="badge badge-terre">${esc(subject)} · ${esc(p.level)}</span>
-          <span class="badge">${p.questions} questions</span>
-          <span class="badge">${p.duration} min</span>
+        <span class="project-badge">Expérience interactive</span>
+        <span class="project-play"><svg class="ico"><use href="#i-play"/></svg></span>`;
+    const body = `
+      <div class="badge-row">
+        <span class="badge badge-terre">${esc(subject)} · ${esc(p.level)}</span>
+        <span class="badge">${p.duration} min</span>
+      </div>
+      <h3>${esc(p.title)}</h3>
+      <p class="project-sub">${esc(p.subtitle)}</p>
+      <p class="project-desc">${esc(p.description)}</p>
+      <div class="project-tags">${(p.tags || []).map((t) => `<span>${esc(t)}</span>`).join('')}</div>`;
+    if (LIBRARY_ONLY) {
+      return `<article class="project-card project-card-link">
+        <a class="project-cover" href="${esc(p.url)}" target="_blank" rel="noopener" aria-label="Ouvrir ${esc(p.title)}">${coverInner}</a>
+        <div class="project-body">
+          ${body}
+          <div class="project-actions">
+            <a class="btn btn-primary btn-sm" href="${esc(p.url)}" target="_blank" rel="noopener">Ouvrir l’expérience<svg class="ico"><use href="#i-arrow-right"/></svg></a>
+          </div>
         </div>
-        <h3>${esc(p.title)}</h3>
-        <p class="project-sub">${esc(p.subtitle)}</p>
-        <p class="project-desc">${esc(p.description)}</p>
-        <div class="project-tags">${(p.tags || []).map((t) => `<span>${esc(t)}</span>`).join('')}</div>
+      </article>`;
+    }
+    return `<article class="project-card">
+      <button class="project-cover" data-project-open="${p.id}" aria-label="Ouvrir la fiche ${esc(p.title)}">${coverInner}</button>
+      <div class="project-body">
+        ${body}
         <div class="project-actions">
           <button class="btn btn-ghost btn-sm" data-project-open="${p.id}"><svg class="ico"><use href="#i-layers"/></svg>Fiche et structure</button>
           <button class="btn btn-primary btn-sm" data-project-launch="${p.id}">Lancer l’enquête<svg class="ico"><use href="#i-arrow-right"/></svg></button>
@@ -154,12 +173,26 @@
     const grid = $('#project-grid');
     if (grid) grid.innerHTML = projects.map(projectCard).join('');
     const count = $('#project-count');
-    if (count) count.textContent = projects.length ? `${plural(projects.length, 'projet', 'projets')} prêt${projects.length > 1 ? 's' : ''} à lancer, à côté de vos séances.` : 'Des enquêtes prêtes à lancer.';
+    if (count) {
+      count.textContent = LIBRARY_ONLY
+        ? `${plural(projects.length, 'expérience', 'expériences')} disponible${projects.length > 1 ? 's' : ''} · cliquez pour ouvrir.`
+        : projects.length
+          ? `${plural(projects.length, 'projet', 'projets')} prêt${projects.length > 1 ? 's' : ''} à lancer, à côté de vos séances.`
+          : 'Des enquêtes prêtes à lancer.';
+    }
+    const heading = section ? section.querySelector('.section-head h2') : null;
+    if (heading) heading.textContent = LIBRARY_ONLY ? 'Mes expériences' : 'Projets interactifs';
+    const badge = section ? section.querySelector('.badge-ready') : null;
+    if (badge && LIBRARY_ONLY) badge.textContent = 'Bibliothèque';
   }
 
   function renderLibrary() {
     const sorted = state.sessions.slice().sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
     renderProjects();
+    if (LIBRARY_ONLY) {
+      document.body.classList.add('library-only');
+      return;
+    }
     const resumeSection = $('#resume-section');
     if (resumeSection) resumeSection.style.display = state.sessions.length >= 2 ? '' : 'none';
     const resume = sorted.slice(0, 2);
@@ -745,6 +778,7 @@
   function parseHash() { return location.hash.replace(/^#\/?/, '') || 'library'; }
 
   function showScreen(name) {
+    if (LIBRARY_ONLY && (name === 'import' || name === 'generate' || name === 'editor')) name = 'library';
     state.screen = name;
     if (name !== 'generate') clearGeneration();
     document.body.classList.toggle('is-editing', name === 'editor');
@@ -797,6 +831,11 @@
 
   function route() {
     const [name, arg] = parseHash().split('/');
+    if (LIBRARY_ONLY && (name === 'import' || name === 'generate' || name === 'editor')) {
+      history.replaceState(null, '', '#/library');
+      showScreen('library');
+      return;
+    }
     if (name === 'viewer') { openViewer(Number(arg) || 0); return; }
     if (name === 'partage') {
       const shared = D.decodeSession(arg || '');
