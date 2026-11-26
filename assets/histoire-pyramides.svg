@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 180" role="img" aria-label="Pyramides d'Égypte">
+  <defs>
+    <radialGradient id="sunGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#ffe6a8" stop-opacity=".95"/>
+      <stop offset="60%" stop-color="#ffdf9a" stop-opacity=".32"/>
+      <stop offset="100%" stop-color="#ffdf9a" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="faceLit" x1="0" y1="0" x2="0.8" y2="1">
+      <stop offset="0" stop-color="#ecc27a"/>
+      <stop offset="55%" stop-color="#d6a355"/>
+      <stop offset="100%" stop-color="#b9823b"/>
+    </linearGradient>
+    <linearGradient id="faceShade" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#a9742f"/>
+      <stop offset="100%" stop-color="#7c5320"/>
+    </linearGradient>
+    <radialGradient id="ground" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#d8ae6c" stop-opacity=".9"/>
+      <stop offset="70%" stop-color="#e3c085" stop-opacity=".5"/>
+      <stop offset="100%" stop-color="#e3c085" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="shadowFade" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#8a5f2a" stop-opacity=".35"/>
+      <stop offset="100%" stop-color="#8a5f2a" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <circle cx="252" cy="40" r="66" fill="url(#sunGlow)"/>
+  <ellipse cx="150" cy="146" rx="120" ry="26" fill="url(#ground)"/>
+
+  <!-- pyramides du fond -->
+  <g opacity=".9">
+    <path d="M171 68 L131 124 L171 124 Z" fill="url(#faceLit)"/>
+    <path d="M171 68 L171 124 L211 124 Z" fill="url(#faceShade)"/>
+    <path d="M247 86 L215 124 L247 124 Z" fill="url(#faceLit)"/>
+    <path d="M247 86 L247 124 L279 124 Z" fill="url(#faceShade)"/>
+  </g>
+
+  <ellipse cx="92" cy="126" rx="80" ry="9" fill="url(#shadowFade)"/>
+  <path d="M88 40 L28 124 L88 124 Z" fill="url(#faceLit)"/>
+  <path d="M88 40 L88 124 L148 124 Z" fill="url(#faceShade)"/>
+  <path d="M88 40 L84 56 L92 56 Z" fill="#f6dba8" opacity=".6"/>
+
+  <!-- sphinx -->
+  <g>
+    <ellipse cx="52" cy="150" rx="42" ry="6" fill="#a87b3e" opacity=".22"/>
+    <path d="M20 150 q2 -15 20 -17 l22 -2 q14 -1 20 8 l6 11 z" fill="#bf8f52"/>
+    <path d="M20 150 q2 -15 20 -17 l6 0 q-10 6 -8 17 z" fill="#a3743c"/>
+    <path d="M64 133 q10 -2 16 6 l4 8 -14 0 q-6 -6 -6 -14 z" fill="#a3743c"/>
+    <path d="M66 129 q10 -4 16 2 l-2 8 q-8 -2 -14 -2 z" fill="#c99a5c"/>
+    <path d="M72 125 q10 -2 14 4 l-6 4 q-6 -2 -8 -8 z" fill="#d8ab6b"/>
+  </g>
+</svg>

@@ -16,8 +16,8 @@
   const LIBRARY_ONLY = true;
   const LIBRARY_LEVELS = ['6e', '5e', '4e', '3e'];
   const LIBRARY_SUBJECTS = [
-    { id: 'histoire', label: 'Histoire', icon: 'i-column', line: 'Enquêtes, contrôles et parcours sur les périodes du programme.' },
-    { id: 'geo', label: 'Géographie', icon: 'i-planet', line: 'Territoires, cartes et enjeux du monde d’aujourd’hui.' }
+    { id: 'histoire', label: 'Histoire', icon: 'i-column', art: 'assets/histoire-pyramides.svg', line: 'Enquêtes, contrôles et parcours sur les périodes du programme.' },
+    { id: 'geo', label: 'Géographie', icon: 'i-planet', art: 'assets/geo-hemisphere.svg', line: 'Territoires, cartes et enjeux du monde d’aujourd’hui.' }
   ];
   const subjectFilters = { histoire: 'all', geo: 'all' };
   const SETTINGS_KEY = 'clio_settings';
@@ -315,7 +315,7 @@
              <p>Les prochaines expériences de ${esc(subject.label.toLowerCase())} viendront se ranger ici.</p>
            </div></div>`;
       return `<section class="subject-block subject-${subject.id}">
-        <svg class="subject-watermark" aria-hidden="true"><use href="#${subject.icon}"/></svg>
+        <img class="subject-art" src="${subject.art}" alt="" aria-hidden="true">
         <header class="subject-head">
           <span class="subject-icon" aria-hidden="true"><svg class="ico"><use href="#${subject.icon}"/></svg></span>
           <div class="subject-copy">
