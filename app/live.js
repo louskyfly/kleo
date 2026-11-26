@@ -10,13 +10,14 @@ window.KleoLive = (() => {
   const GATE_TOPIC = ROOT + '/gate';
   const SESSION_PREFIX = ROOT + '/session/';
   const PROJECT_PREFIX = ROOT + '/project/';
+  const TEXTS_TOPIC = ROOT + '/texts';
   const TEACHER_CODE = '314324';
   const APP_URL = location.protocol === 'file:'
     ? 'https://louskyfly.github.io/kleo/'
     : location.href.split('#')[0];
 
   const $ = (s, r = document) => r.querySelector(s);
-  const state = { open: true, updatedAt: null, known: false, projects: {} };
+  const state = { open: true, updatedAt: null, known: false, projects: {}, texts: null };
   const listeners = new Set();
 
   let client = null;
@@ -60,11 +61,20 @@ window.KleoLive = (() => {
       connected = true;
       client.subscribe(GATE_TOPIC, { qos: 1 });
       client.subscribe(PROJECT_PREFIX + '+', { qos: 1 });
+      client.subscribe(TEXTS_TOPIC, { qos: 1 });
       connectWaiters.forEach((w) => w?.(true));
       connectWaiters = [];
       cb?.(true);
     });
     client.on('message', (topic, payload) => {
+      if (topic === TEXTS_TOPIC) {
+        try {
+          const data = JSON.parse(payload.toString());
+          state.texts = data && typeof data === 'object' ? data : {};
+          emit();
+        } catch (e) {}
+        return;
+      }
       if (topic.startsWith(PROJECT_PREFIX)) {
         const id = topic.slice(PROJECT_PREFIX.length);
         try {
@@ -120,6 +130,16 @@ window.KleoLive = (() => {
           state.projects[projectId] = { open, updatedAt };
           emit();
         }
+        cb?.(err || null);
+      });
+    });
+  }
+
+  function publishTexts(texts, cb) {
+    connect((ok) => {
+      if (!ok) { cb?.(new Error('Connexion au serveur de classe impossible.')); return; }
+      client.publish(TEXTS_TOPIC, JSON.stringify(texts || {}), { qos: 1, retain: true }, (err) => {
+        if (!err) { state.texts = texts || {}; emit(); }
         cb?.(err || null);
       });
     });
@@ -258,6 +278,8 @@ window.KleoLive = (() => {
     publishGate,
     publishProjectGate,
     projectState,
+    publishTexts,
+    texts: () => state.texts || {},
     publishSession,
     fetchSession,
     makeQR,

@@ -15,7 +15,15 @@
      le réafficher. */
   const LIBRARY_ONLY = true;
   const LIBRARY_LEVELS = ['6e', '5e', '4e', '3e'];
-  let levelFilter = 'all';
+  const LIBRARY_SUBJECTS = [
+    { id: 'histoire', label: 'Histoire', icon: 'i-column', line: 'Enquêtes, contrôles et parcours sur les périodes du programme.' },
+    { id: 'geo', label: 'Géographie', icon: 'i-planet', line: 'Territoires, cartes et enjeux du monde d’aujourd’hui.' }
+  ];
+  const subjectFilters = { histoire: 'all', geo: 'all' };
+  let editTexts = false;
+  let textOverrides = {};
+  let lastTextsJson = '';
+  let textsTimer = null;
 
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
@@ -130,7 +138,8 @@
     </article>`;
   }
 
-  function projectCard(p) {
+  function projectCard(rawProject) {
+    const p = LIBRARY_ONLY ? projectView(rawProject) : rawProject;
     const subject = (D.SUBJECTS[p.subject] || D.SUBJECTS.histoire).label;
     const coverInner = `
         <img src="${esc(p.cover)}" alt="Aperçu de ${esc(p.title)}" loading="lazy">
@@ -141,9 +150,9 @@
         <span class="badge badge-terre">${esc(subject)} · ${esc(p.level)}</span>
         <span class="badge">${p.duration} min</span>
       </div>
-      <h3>${esc(p.title)}</h3>
-      <p class="project-sub">${esc(p.subtitle)}</p>
-      <p class="project-desc">${esc(p.description)}</p>
+      <h3${editAttr(p, 'title')}>${esc(p.title)}</h3>
+      <p class="project-sub"${editAttr(p, 'subtitle')}>${esc(p.subtitle)}</p>
+      <p class="project-desc"${editAttr(p, 'description')}>${esc(p.description)}</p>
       <div class="project-tags">${(p.tags || []).map((t) => `<span>${esc(t)}</span>`).join('')}</div>`;
     if (LIBRARY_ONLY) {
       if (!projectIsOpen(p.id)) {
@@ -179,44 +188,81 @@
     </article>`;
   }
 
-  function renderLevels(allProjects) {
-    const mount = $('#level-folders');
-    if (!mount) return;
-    const projects = allProjects || D.PROJECTS || [];
+  function projectView(project) {
+    const read = (field) => {
+      const value = textOverrides[project.id + ':' + field];
+      return typeof value === 'string' && value.trim() ? value : project[field] || '';
+    };
+    return { ...project, title: read('title'), subtitle: read('subtitle'), description: read('description') };
+  }
+
+  function editAttr(project, field) {
+    if (!editTexts) return '';
+    return ' contenteditable="true" spellcheck="false" data-text="' + esc(project.id) + ':' + field + '"';
+  }
+
+  function levelTiles(list, subjectId) {
+    const filter = subjectFilters[subjectId] || 'all';
     const tiles = [
-      { id: 'all', label: 'Toutes les classes', count: projects.length },
-      ...LIBRARY_LEVELS.map((lvl) => ({ id: lvl, label: lvl, count: projects.filter((p) => p.level === lvl).length }))
+      { id: 'all', label: 'Toutes les classes', count: list.length },
+      ...LIBRARY_LEVELS.map((level) => ({ id: level, label: level, count: list.filter((p) => p.level === level).length }))
     ];
-    mount.innerHTML = tiles
+    return tiles
       .map(
-        (t) => `<button type="button" class="level-folder${levelFilter === t.id ? ' is-on' : ''}" data-level="${esc(t.id)}">
+        (tile) => `<button type="button" class="level-folder${filter === tile.id ? ' is-on' : ''}" data-level="${esc(tile.id)}" data-subject="${esc(subjectId)}">
           <svg class="ico"><use href="#i-folder"/></svg>
-          <span><strong>${esc(t.label)}</strong><small>${t.count} expérience${t.count > 1 ? 's' : ''}</small></span>
+          <span><strong>${esc(tile.label)}</strong><small>${tile.count} expérience${tile.count > 1 ? 's' : ''}</small></span>
         </button>`
       )
       .join('');
   }
 
+  function renderLibrarySections() {
+    const mount = $('#subject-sections');
+    if (!mount) return;
+    const all = D.PROJECTS || [];
+    mount.innerHTML = LIBRARY_SUBJECTS.map((subject) => {
+      const list = all.filter((project) => (project.subject || 'histoire') === subject.id);
+      const filter = subjectFilters[subject.id] || 'all';
+      const visible = filter === 'all' ? list : list.filter((project) => project.level === filter);
+      const cards = visible.length
+        ? visible.map(projectCard).join('')
+        : `<div class="empty-grid"><div class="empty-card"><span class="empty-icon"><svg class="ico"><use href="#${subject.icon}"/></svg></span>
+             <h3>Rien encore${filter === 'all' ? '' : ' en ' + esc(filter)}.</h3>
+             <p>Les prochaines expériences de ${esc(subject.label.toLowerCase())} viendront se ranger ici.</p>
+           </div></div>`;
+      return `<section class="subject-block subject-${subject.id}">
+        <svg class="subject-watermark" aria-hidden="true"><use href="#${subject.icon}"/></svg>
+        <header class="subject-head">
+          <span class="subject-icon" aria-hidden="true"><svg class="ico"><use href="#${subject.icon}"/></svg></span>
+          <div class="subject-copy">
+            <h2>${esc(subject.label)}</h2>
+            <p>${esc(subject.line)}</p>
+          </div>
+          <span class="subject-count">${list.length} expérience${list.length > 1 ? 's' : ''}</span>
+        </header>
+        <div class="level-folders">${levelTiles(list, subject.id)}</div>
+        <div class="project-grid">${cards}</div>
+      </section>`;
+    }).join('');
+  }
+
   function renderProjects() {
     const all = D.PROJECTS || [];
-    const projects = LIBRARY_ONLY && levelFilter !== 'all' ? all.filter((p) => p.level === levelFilter) : all;
     const section = $('#projects-section');
     if (section) section.style.display = all.length ? '' : 'none';
-    if (LIBRARY_ONLY) renderLevels(all);
-    const grid = $('#project-grid');
-    if (grid) {
-      grid.innerHTML = projects.length
-        ? projects.map(projectCard).join('')
-        : `<div class="empty-grid"><div class="empty-card"><span class="empty-icon"><svg class="ico"><use href="#i-folder"/></svg></span>
-             <h3>Aucune expérience en ${esc(levelFilter)}.</h3><p>Les prochaines expériences de ce niveau viendront se ranger ici.</p>
-           </div></div>`;
+    if (LIBRARY_ONLY) {
+      renderLibrarySections();
+    } else {
+      const grid = $('#project-grid');
+      if (grid) grid.innerHTML = all.map(projectCard).join('');
     }
     const count = $('#project-count');
     if (count) {
       count.textContent = LIBRARY_ONLY
-        ? `${plural(projects.length, 'expérience', 'expériences')} · cliquez pour ouvrir.`
-        : projects.length
-          ? `${plural(projects.length, 'projet', 'projets')} prêt${projects.length > 1 ? 's' : ''} à lancer, à côté de vos séances.`
+        ? 'Choisis une matière, une classe, puis une expérience.'
+        : all.length
+          ? `${plural(all.length, 'projet', 'projets')} prêt${all.length > 1 ? 's' : ''} à lancer, à côté de vos séances.`
           : 'Des enquêtes prêtes à lancer.';
     }
     const heading = section ? section.querySelector('.section-head h2') : null;
@@ -967,9 +1013,20 @@
 
     if (t.closest('#qr-screen-close') || t.id === 'qr-screen') { closeQrScreen(); return; }
 
+    const editBtn = t.closest('#editTextsBtn');
+    if (editBtn) {
+      editTexts = !editTexts;
+      document.body.classList.toggle('is-editing-texts', editTexts);
+      editBtn.textContent = editTexts ? 'Terminer' : 'Modifier les textes';
+      renderProjects();
+      toast(editTexts ? 'Clique sur un texte pour le changer.' : 'Textes enregistrés.');
+      return;
+    }
+
     const levelBtn = t.closest('[data-level]');
     if (levelBtn) {
-      levelFilter = levelBtn.dataset.level || 'all';
+      const subject = levelBtn.dataset.subject || 'histoire';
+      subjectFilters[subject] = levelBtn.dataset.level || 'all';
       renderProjects();
       return;
     }
@@ -1695,13 +1752,45 @@
   /* ------------------------------------------------------------
      Démarrage
      ------------------------------------------------------------ */
+  function scheduleTextsPublish() {
+    clearTimeout(textsTimer);
+    textsTimer = setTimeout(() => {
+      if (!window.KleoLive) return;
+      KleoLive.publishTexts(textOverrides, (err) => {
+        if (err) toast('Enregistrement des textes impossible.');
+      });
+    }, 800);
+  }
+
+  document.addEventListener('focusout', (event) => {
+    const el = event.target.closest('[data-text]');
+    if (!el) return;
+    const key = el.dataset.text;
+    const split = key.lastIndexOf(':');
+    const id = key.slice(0, split);
+    const field = key.slice(split + 1);
+    const project = (D.PROJECTS || []).find((item) => item.id === id);
+    const value = el.textContent.replace(/\s+/g, ' ').trim();
+    if (!project || !field) return;
+    if (value && value !== (project[field] || '')) textOverrides[key] = value;
+    else delete textOverrides[key];
+    scheduleTextsPublish();
+  });
+
   if (window.KleoLive) {
     KleoLive.onGate((g) => {
       updateProfGate(g);
       renderProfProjects();
-      if (LIBRARY_ONLY) renderProjects();
+      const json = JSON.stringify(g.texts || {});
+      if (json !== lastTextsJson) {
+        lastTextsJson = json;
+        if (!editTexts) textOverrides = g.texts || {};
+      }
+      if (LIBRARY_ONLY && !editTexts) renderProjects();
     });
-  }  renderLibrary();
+  }
+
+  renderLibrary();
   renderFiles();
   route();
   window.addEventListener('beforeunload', () => { state.genTimers.forEach(clearTimeout); });
