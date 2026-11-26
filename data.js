@@ -198,12 +198,50 @@
       theme: 'Le XVIIIe siècle, expansions, Lumières et révolutions',
       coverWord: '1789',
       status: 'Brouillon',
+      template: 'decouverte',
       attachments: ['Chapitre_Lumieres_v3.docx', 'extrait_Encyclopedie.pdf', 'carte_europe_1750.jpg', 'evaluation_Lumieres.docx'],
       createdAt: now(),
       updatedAt: now(),
       pages: seedPages()
     };
   }
+
+  /* ------------------------------------------------------------
+     Structures de séance et projets invités
+     ------------------------------------------------------------ */
+  const TEMPLATES = {
+    decouverte: { label: 'Découverte', description: 'Repères, frise, quiz', pages: ['cover', 'objectives', 'timeline', 'quiz', 'synthesis'] },
+    analyse: { label: 'Analyse de document', description: 'Source, observation, quiz', pages: ['cover', 'objectives', 'document', 'quiz', 'synthesis'] },
+    enquete: { label: 'Enquête', description: 'Carte, document, quiz', pages: ['cover', 'objectives', 'map', 'document', 'quiz', 'synthesis'] },
+    revision: { label: 'Révision', description: 'Cartes, quiz, synthèse', pages: ['cover', 'objectives', 'flipcards', 'quiz', 'synthesis'] },
+    evaluation: { label: 'Évaluation', description: 'Quiz et synthèse', pages: ['cover', 'quiz', 'synthesis'] },
+    blank: { label: 'Page blanche', description: 'Une couverture à compléter', pages: ['cover'] }
+  };
+
+  const PROJECTS = [{
+    id: 'proj_egypte',
+    title: 'Mystère en Égypte',
+    subtitle: "L'enquête du professeur Désiré",
+    subject: 'histoire',
+    level: '6e',
+    duration: 60,
+    questions: 30,
+    acts: 5,
+    description: "Le professeur Désiré a disparu. Les élèves remontent sa piste du Caire à Gizeh, lisent les documents, résolvent les énigmes et répondent sur leur copie. Un projet d'enquête interactif pour entrer dans l'Antiquité égyptienne.",
+    url: 'https://louskyfly.github.io/mystere-en-egypte/',
+    teacherUrl: 'https://louskyfly.github.io/mystere-en-egypte/prof.html',
+    cover: 'projects/mystere-en-egypte.png',
+    tags: ['Enquête', 'Antiquité', 'Égypte', 'Documents'],
+    credit: 'D’après l’enquête de Julien Ferrand (2018) · adaptation 2026',
+    phases: [
+      { title: 'Prologue', detail: 'Le Caire, le journal' },
+      { title: 'I · L’envol', detail: 'Aéroport d’Orléans' },
+      { title: 'II · Le Caire', detail: 'Avion, carte, hôtel' },
+      { title: 'III · Le musée', detail: 'Ankh, Osiris, papyrus d’Hunefer' },
+      { title: 'IV · Gizeh', detail: 'Tablette, guide, pyramide' },
+      { title: 'V · La pyramide', detail: 'Sarcophage, coordonnées, finale' }
+    ]
+  }];
 
   /* ------------------------------------------------------------
      Modèles de pages
@@ -259,7 +297,8 @@
     const subject = opts.subject || 'histoire';
     const level = opts.level || '4e';
     const title = (opts.title || 'Nouvelle séance').trim() || 'Nouvelle séance';
-    const pages = [createPage('cover'), createPage('objectives'), createPage('quiz'), createPage('synthesis')];
+    const template = TEMPLATES[opts.template] ? opts.template : 'decouverte';
+    const pages = TEMPLATES[template].pages.map((kind) => createPage(kind));
     pages[0].data.kicker = `Séance · ${SUBJECTS[subject].label} · ${level}`;
     pages[0].data.title = title;
     pages[0].data.accent = '';
@@ -273,6 +312,7 @@
       theme: opts.theme || '',
       coverWord: level.toUpperCase(),
       status: 'Brouillon',
+      template,
       attachments: opts.attachments || [],
       createdAt: now(),
       updatedAt: now(),
@@ -416,7 +456,7 @@
   }
 
   window.KleoData = {
-    KEY, SUBJECTS, PAGE_TYPES, SCHEMAS, DEFAULT_PLACES,
+    KEY, SUBJECTS, PAGE_TYPES, SCHEMAS, DEFAULT_PLACES, TEMPLATES, PROJECTS,
     uid, clone, now, seedSession, createSession, createPage, defaultData,
     loadSessions, saveSessions, getSession, encodeSession, decodeSession, canStore
   };

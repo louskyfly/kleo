@@ -1,0 +1,95 @@
+/* ============================================================
+   Kléo v2 — projets invités et structures de séance
+   ============================================================ */
+
+.project-grid { display: grid; grid-template-columns: 1fr; gap: 18px; }
+.project-card {
+  display: grid; grid-template-columns: 340px minmax(0, 1fr);
+  border: 1px solid var(--line); border-radius: 22px; background: var(--surface);
+  overflow: hidden; box-shadow: var(--shadow-sm);
+  transition: transform .2s var(--ease), box-shadow .2s, border-color .2s;
+}
+.project-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); border-color: var(--line-strong); }
+.project-cover { position: relative; display: block; border: 0; padding: 0; background: #0B1118; overflow: hidden; min-height: 240px; }
+.project-cover img { width: 100%; height: 100%; object-fit: contain; object-position: center; display: block; transition: transform .4s var(--ease); }
+.project-card:hover .project-cover img { transform: scale(1.025); }
+.project-badge {
+  position: absolute; top: 14px; left: 14px; z-index: 2;
+  padding: 5px 9px; border-radius: 999px; background: rgba(7, 11, 16, .72);
+  border: 1px solid rgba(232, 180, 74, .45); color: #F6D99A;
+  font-size: 9.5px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase;
+  backdrop-filter: blur(6px);
+}
+.project-play {
+  position: absolute; right: 14px; bottom: 14px; z-index: 2;
+  display: grid; place-items: center; width: 46px; height: 46px; border-radius: 50%;
+  background: var(--paper); color: var(--ink); box-shadow: 0 8px 20px rgba(0, 0, 0, .35);
+}
+.project-play .ico { width: 18px; height: 18px; }
+.project-body { display: flex; flex-direction: column; gap: 8px; padding: 22px 24px 20px; min-width: 0; }
+.project-body h3 { font-family: var(--font-display); font-size: 28px; font-weight: 500; letter-spacing: -.025em; line-height: 1.05; }
+.project-sub { font-family: var(--font-display); font-size: 15px; font-style: italic; color: var(--terre); }
+.project-desc { font-size: 12.5px; line-height: 1.6; color: var(--muted); max-width: 64ch; }
+.project-tags { display: flex; flex-wrap: wrap; gap: 5px; }
+.project-tags span { padding: 3px 8px; border-radius: 999px; background: var(--paper-deep); font-size: 10px; font-weight: 500; color: var(--ink-2); }
+.project-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: auto; padding-top: 8px; }
+
+/* Fiche projet */
+.modal-project { width: min(760px, 100%); position: relative; overflow: hidden; }
+.project-close { position: absolute; top: 12px; right: 12px; z-index: 5; background: rgba(255, 252, 246, .92); border: 1px solid var(--line); }
+.project-hero { position: relative; aspect-ratio: 16 / 7.2; background: #0B1118; overflow: hidden; }
+.project-hero img { width: 100%; height: 100%; object-fit: cover; object-position: center 42%; display: block; }
+.project-hero::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 55%, rgba(7, 11, 16, .55)); pointer-events: none; }
+.project-hero-text { position: absolute; left: 24px; right: 24px; bottom: 16px; z-index: 2; color: var(--paper); }
+.project-hero-kicker { font-size: 9.5px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: #F6D99A; }
+.project-hero h2 { font-family: var(--font-display); font-size: 32px; font-weight: 500; letter-spacing: -.02em; line-height: 1.05; margin-top: 4px; }
+.project-hero p { font-family: var(--font-display); font-size: 14px; font-style: italic; color: rgba(247, 242, 231, .8); margin-top: 2px; }
+.project-long { font-size: 12.5px; line-height: 1.65; color: var(--ink-2); }
+.project-facts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.project-facts > span { padding: 10px 8px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface-2); text-align: center; }
+.project-facts strong { display: block; font-family: var(--font-display); font-size: 20px; font-weight: 500; color: var(--ink); }
+.project-facts small { display: block; margin-top: 1px; font-size: 9px; letter-spacing: .09em; text-transform: uppercase; color: var(--muted); }
+.project-structure { padding: 14px 16px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface-2); }
+.project-structure h3 { font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+.project-structure ol { display: flex; flex-direction: column; }
+.project-structure li { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; padding: 6px 0; border-bottom: 1px solid var(--line); font-size: 11.5px; }
+.project-structure li:last-child { border-bottom: 0; }
+.project-structure strong { font-weight: 600; color: var(--ink); }
+.project-structure span { color: var(--muted); text-align: right; }
+.project-credit { font-size: 10px; color: var(--muted); line-height: 1.45; }
+.project-foot { justify-content: space-between; }
+
+/* Structures de séance */
+.template-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }.template-option {
+  display: flex; align-items: flex-start; gap: 7px; padding: 9px 9px;
+  border: 1px solid var(--line); border-radius: 10px; background: var(--paper);
+  text-align: left; transition: border-color .15s, background .15s, box-shadow .15s;
+}
+.template-option:hover { border-color: var(--line-strong); background: var(--surface); }
+.template-option.is-on { border-color: var(--ink); background: var(--surface); box-shadow: 0 0 0 2px rgba(21, 36, 32, .06); }
+.template-check { display: grid; place-items: center; width: 16px; height: 16px; margin-top: 1px; border-radius: 50%; border: 1px solid var(--line-strong); color: transparent; flex: none; }
+.template-check .ico { width: 9px; height: 9px; stroke-width: 2.8; }
+.template-option.is-on .template-check { background: var(--forest); border-color: var(--forest); color: var(--paper); }
+.template-option strong { display: block; font-size: 11px; font-weight: 600; line-height: 1.2; color: var(--ink); }
+.template-option small { display: block; margin-top: 2px; font-size: 9.5px; line-height: 1.25; color: var(--muted); }
+
+@media (max-width: 900px) {
+  .project-card { grid-template-columns: 1fr; }
+  .project-cover { min-height: 0; aspect-ratio: 16 / 8.4; }
+  .project-body { padding: 18px 18px 16px; }
+  .project-body h3 { font-size: 24px; }
+}
+
+@media (min-width: 901px) {
+  .settings-panel { max-height: calc(100vh - 170px); overflow-y: auto; scrollbar-width: thin; }
+}
+@media (max-width: 700px) {
+  .project-hero { aspect-ratio: 16 / 9; }
+  .project-hero h2 { font-size: 26px; }
+  .project-facts { grid-template-columns: 1fr 1fr; }
+  .template-grid { grid-template-columns: 1fr; }
+  .project-actions { flex-direction: column; align-items: stretch; }
+  .project-actions .btn { width: 100%; justify-content: center; }
+  .project-foot { flex-direction: column-reverse; }
+  .project-foot .btn { width: 100%; }
+}
