@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 180" role="img" aria-label="Hémisphère terrestre">
+  <defs>
+    <radialGradient id="ocean" cx="35%" cy="30%" r="80%">
+      <stop offset="0" stop-color="#4a90c9"/>
+      <stop offset="45%" stop-color="#1f5e96"/>
+      <stop offset="80%" stop-color="#123f6b"/>
+      <stop offset="100%" stop-color="#0a2a4a"/>
+    </radialGradient>
+    <radialGradient id="land" cx="40%" cy="35%" r="80%">
+      <stop offset="0" stop-color="#a7c46a"/>
+      <stop offset="55%" stop-color="#7aa04a"/>
+      <stop offset="100%" stop-color="#4f7231"/>
+    </radialGradient>
+    <radialGradient id="desert" cx="50%" cy="40%" r="70%">
+      <stop offset="0" stop-color="#e8cf94"/>
+      <stop offset="100%" stop-color="#c9a869"/>
+    </radialGradient>
+    <radialGradient id="atmos" cx="50%" cy="50%" r="50%">
+      <stop offset="86%" stop-color="#8fd0ff" stop-opacity="0"/>
+      <stop offset="94%" stop-color="#8fd0ff" stop-opacity=".55"/>
+      <stop offset="100%" stop-color="#8fd0ff" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="gloss" cx="32%" cy="24%" r="45%">
+      <stop offset="0" stop-color="#ffffff" stop-opacity=".55"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="under" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#0b2a45" stop-opacity=".45"/>
+      <stop offset="100%" stop-color="#0b2a45" stop-opacity="0"/>
+    </radialGradient>
+    <clipPath id="globeClip">
+      <circle cx="160" cy="88" r="76"/>
+    </clipPath>
+  </defs>
+
+  <ellipse cx="160" cy="166" rx="86" ry="9" fill="url(#under)"/>
+
+  <g clip-path="url(#globeClip)">
+    <circle cx="160" cy="88" r="76" fill="url(#ocean)"/>
+
+    <!-- Afrique -->
+    <path d="M150 42 c12 -3 22 4 24 14 c2 10 -6 16 -4 26 c3 12 -4 26 -14 34 c-8 7 -16 5 -20 -3 c-4 -9 0 -20 -4 -28 c-5 -9 -1 -22 5 -30 c4 -6 8 -11 13 -13 z" fill="url(#land)"/>
+    <path d="M150 60 c8 2 14 10 12 20 c-2 10 -10 18 -18 20 c-6 1 -9 -4 -8 -12 c1 -10 6 -26 14 -28 z" fill="url(#desert)" opacity=".85"/>
+
+    <!-- Europe -->
+    <path d="M132 30 c8 -6 20 -6 26 0 c6 6 2 14 -6 17 c-8 3 -16 0 -20 -5 c-3 -5 -2 -9 0 -12 z" fill="url(#land)"/>
+    <path d="M118 38 c6 -4 12 -3 14 3 c2 6 -4 10 -10 9 c-6 -1 -9 -8 -4 -12 z" fill="url(#land)" opacity=".9"/>
+
+    <!-- Moyen-Orient -->
+    <path d="M186 52 c10 -2 18 4 18 13 c0 8 -8 12 -16 9 c-8 -3 -11 -19 -2 -22 z" fill="url(#land)" opacity=".92"/>
+
+    <!-- nuages -->
+    <g fill="#ffffff" opacity=".38">
+      <ellipse cx="128" cy="70" rx="18" ry="6"/>
+      <ellipse cx="196" cy="104" rx="22" ry="7"/>
+      <ellipse cx="158" cy="132" rx="16" ry="5"/>
+      <ellipse cx="108" cy="112" rx="12" ry="4"/>
+    </g>
+
+    <circle cx="160" cy="88" r="76" fill="url(#gloss)"/>
+  </g>
+
+  <circle cx="160" cy="88" r="76" fill="url(#atmos)"/>
+  <circle cx="160" cy="88" r="75.2" fill="none" stroke="#bfe6ff" stroke-opacity=".5" stroke-width="1"/>
+</svg>
