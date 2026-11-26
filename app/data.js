@@ -241,6 +241,29 @@
       { title: 'IV · Gizeh', detail: 'Tablette, guide, pyramide' },
       { title: 'V · La pyramide', detail: 'Sarcophage, coordonnées, finale' }
     ]
+  }, {
+    id: 'proj_regimes',
+    title: 'URSS de Staline / Allemagne nazie',
+    subtitle: 'Le contrôle de troisième, en binôme',
+    subject: 'histoire',
+    level: '3e',
+    duration: 60,
+    questions: 12,
+    acts: 1,
+    description: "Quatre dossiers documentaires, une boîte à outils des mécanismes, un tri comparatif, une carte mentale sourcée et une conclusion. Les binômes envoient leur copie au professeur depuis l'application, qui la corrige avec barème et points.",
+    url: 'https://louskyfly.github.io/enquete-regimes-totalitaires/',
+    teacherUrl: 'https://louskyfly.github.io/enquete-regimes-totalitaires/',
+    cover: 'projects/enquete-regimes.jpg',
+    tags: ['Contrôle', 'Carte mentale', 'Sources', 'Binôme'],
+    credit: 'Application d’enquête · 2026',
+    phases: [
+      { title: 'Briefing', detail: 'Mission et consignes' },
+      { title: 'Enquête', detail: 'Quatre dossiers, douze questions' },
+      { title: 'Mécanismes', detail: 'Six affirmations à attribuer' },
+      { title: 'Comparer', detail: 'Douze éléments à trier' },
+      { title: 'Carte', detail: 'Carte mentale sourcée' },
+      { title: 'Envoi', detail: 'Copie transmise au professeur' }
+    ]
   }];
 
   /* ------------------------------------------------------------

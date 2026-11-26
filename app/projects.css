@@ -93,3 +93,25 @@
   .project-foot { flex-direction: column-reverse; }
   .project-foot .btn { width: 100%; }
 }
+
+/* ============================================================
+   Mode bibliothèque : uniquement les expériences interactives.
+   L'atelier reste dans le code (LIBRARY_ONLY = false pour le revoir).
+   ============================================================ */
+body.library-only .hero,
+body.library-only #resume-section,
+body.library-only #sessions-section,
+body.library-only .topbar,
+body.library-only .rail-nav a[data-nav='projects'],
+body.library-only .rail-nav a[href='#/classes'],
+body.library-only .page-foot { display: none !important; }
+
+body.library-only .page { padding-top: 30px; }
+body.library-only #projects-section { margin-top: 0; }
+body.library-only .section-head .badge-ready { color: var(--terre); border-color: currentColor; }
+
+body.library-only .project-grid { gap: 22px; }
+body.library-only .project-card-link .project-actions { margin-top: auto; padding-top: 10px; }
+body.library-only .project-card-link { color: inherit; }
+body.library-only .project-card-link:hover h3 { color: var(--terre); }
+body.library-only .project-card-link h3 { transition: color .18s var(--ease); }
