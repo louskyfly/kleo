@@ -11,6 +11,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
 <link rel="stylesheet" href="v2.css">
+<link rel="stylesheet" href="projects.css">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23152420'/%3E%3Cpath d='M20 18v28M44 18 26 33l19 13' stroke='%23F7F2E7' stroke-width='5' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3Ccircle cx='47' cy='17' r='4' fill='%23D9A441'/%3E%3C/svg%3E">
 </head>
 <body>
@@ -67,8 +68,8 @@
     </a>
 
     <nav class="rail-nav">
-      <a class="rail-link is-active" href="#/library" data-rail><svg class="ico"><use href="#i-grid"/></svg><span>Bibliothèque</span></a>
-      <a class="rail-link" href="#/models" data-rail data-soon="Modèles"><svg class="ico"><use href="#i-layers"/></svg><span>Modèles</span></a>
+      <a class="rail-link is-active" href="#/library" data-rail data-nav="library"><svg class="ico"><use href="#i-grid"/></svg><span>Bibliothèque</span></a>
+      <a class="rail-link" href="#/library" data-rail data-nav="projects" data-scroll="projects-section"><svg class="ico"><use href="#i-layers"/></svg><span>Projets</span></a>
       <a class="rail-link" href="#/classes" data-rail data-soon="Classes"><svg class="ico"><use href="#i-users"/></svg><span>Classes</span></a>
       <a class="rail-link" href="#/documents" data-rail data-soon="Documents"><svg class="ico"><use href="#i-folder"/></svg><span>Documents</span></a>
     </nav>
@@ -133,6 +134,17 @@
             <button class="link-btn" data-toast="Toutes les séances sont affichées ci-dessous.">Tout voir<svg class="ico"><use href="#i-chevron"/></svg></button>
           </div>
           <div class="resume-grid" id="resume-grid"></div>
+        </section>
+
+        <section class="section" id="projects-section">
+          <div class="section-head section-head-wrap">
+            <div>
+              <h2>Projets interactifs</h2>
+              <p class="section-sub" id="project-count">Des enquêtes prêtes à lancer, à côté de vos séances.</p>
+            </div>
+            <span class="badge badge-ready">Prêt à lancer</span>
+          </div>
+          <div class="project-grid" id="project-grid"></div>
         </section>
 
         <section class="section">
@@ -242,13 +254,8 @@
           </div>
 
           <div class="field">
-            <span class="field-label">Intention de séance</span>
-            <div class="chip-row" role="group" aria-label="Intention">
-              <button class="chip is-on" data-toggle>Découverte</button>
-              <button class="chip" data-toggle>Analyse de document</button>
-              <button class="chip" data-toggle>Révision</button>
-              <button class="chip" data-toggle>Évaluation</button>
-            </div>
+            <span class="field-label">Structure</span>
+            <div class="template-grid" id="template-grid" role="group" aria-label="Structure de la séance"></div>
           </div>
 
           <div class="field field-switch">
@@ -262,7 +269,7 @@
 
           <div class="estimate">
             <svg class="ico"><use href="#i-spark"/></svg>
-            <div><strong>≈ 4 pages · 1 quiz</strong><span>une trame de départ, éditable</span></div>
+            <div><strong id="estimate-title">≈ 5 pages · 1 quiz</strong><span id="estimate-sub">structure Découverte</span></div>
           </div>
         </aside>
       </div>

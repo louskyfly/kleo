@@ -14,6 +14,8 @@ Kléo prend des documents scolaires bruts (PDF, DOCX, TXT, photos, liens) et pro
 La v2 transforme la maquette en outil auteur utilisable :
 
 - bibliothèque persistante (localStorage) : créer, dupliquer, renommer, supprimer, filtrer ;
+- **structures de séance** (découverte, analyse, enquête, révision, évaluation, page blanche) ;
+- **projets invités** : fiche et lancement d'enquêtes externes, comme « Mystère en Égypte » (6e) ;
 - éditeur de 9 types de pages avec formulaires réels et aperçu immédiat ;
 - constructeur de quiz : questions, réponses, bonne réponse, corrections, vrai/faux, score ;
 - mode séance data-driven : sommaire, notes, minuteur, score, tactile et clavier ;

@@ -25,7 +25,7 @@
     quizStates: {},
     libraryFilter: 'all',
     importFiles: [],
-    importOpts: { subject: 'histoire', level: '4e', duration: 55, title: '' },
+    importOpts: { subject: 'histoire', level: '4e', duration: 55, title: '', template: 'decouverte' },
     genTimers: [],
     timer: null,
     seconds: 0,
@@ -121,8 +121,45 @@
     </article>`;
   }
 
+  function projectCard(p) {
+    const subject = (D.SUBJECTS[p.subject] || D.SUBJECTS.histoire).label;
+    return `<article class="project-card">
+      <button class="project-cover" data-project-open="${p.id}" aria-label="Ouvrir la fiche ${esc(p.title)}">
+        <img src="${esc(p.cover)}" alt="Aperçu de ${esc(p.title)}" loading="lazy">
+        <span class="project-badge">Projet interactif</span>
+        <span class="project-play"><svg class="ico"><use href="#i-play"/></svg></span>
+      </button>
+      <div class="project-body">
+        <div class="badge-row">
+          <span class="badge badge-terre">${esc(subject)} · ${esc(p.level)}</span>
+          <span class="badge">${p.questions} questions</span>
+          <span class="badge">${p.duration} min</span>
+        </div>
+        <h3>${esc(p.title)}</h3>
+        <p class="project-sub">${esc(p.subtitle)}</p>
+        <p class="project-desc">${esc(p.description)}</p>
+        <div class="project-tags">${(p.tags || []).map((t) => `<span>${esc(t)}</span>`).join('')}</div>
+        <div class="project-actions">
+          <button class="btn btn-ghost btn-sm" data-project-open="${p.id}"><svg class="ico"><use href="#i-layers"/></svg>Fiche et structure</button>
+          <button class="btn btn-primary btn-sm" data-project-launch="${p.id}">Lancer l’enquête<svg class="ico"><use href="#i-arrow-right"/></svg></button>
+        </div>
+      </div>
+    </article>`;
+  }
+
+  function renderProjects() {
+    const projects = D.PROJECTS || [];
+    const section = $('#projects-section');
+    if (section) section.style.display = projects.length ? '' : 'none';
+    const grid = $('#project-grid');
+    if (grid) grid.innerHTML = projects.map(projectCard).join('');
+    const count = $('#project-count');
+    if (count) count.textContent = projects.length ? `${plural(projects.length, 'projet', 'projets')} prêt${projects.length > 1 ? 's' : ''} à lancer, à côté de vos séances.` : 'Des enquêtes prêtes à lancer.';
+  }
+
   function renderLibrary() {
     const sorted = state.sessions.slice().sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+    renderProjects();
     const resumeSection = $('#resume-section');
     if (resumeSection) resumeSection.style.display = state.sessions.length >= 2 ? '' : 'none';
     const resume = sorted.slice(0, 2);
@@ -189,6 +226,28 @@
     renderFiles();
   }
 
+  function renderTemplates() {
+    const host = $('#template-grid');
+    if (!host) return;
+    host.innerHTML = Object.entries(D.TEMPLATES).filter(([k]) => k !== 'blank').map(([k, t]) => `
+      <button class="template-option ${state.importOpts.template === k ? 'is-on' : ''}" data-template="${k}" aria-pressed="${state.importOpts.template === k}">
+        <span class="template-check"><svg class="ico"><use href="#i-check"/></svg></span>
+        <span><strong>${esc(t.label)}</strong><small>${esc(t.description)}</small></span>
+      </button>`).join('');
+  }
+
+  function updateEstimate() {
+    const t = D.TEMPLATES[state.importOpts.template] || D.TEMPLATES.decouverte;
+    const includeQuiz = !$('#opt-quiz') || $('#opt-quiz').checked;
+    const hasQuiz = t.pages.includes('quiz');
+    const count = t.pages.length + (includeQuiz && !hasQuiz ? 1 : 0) - (!includeQuiz && hasQuiz ? 1 : 0);
+    const q = includeQuiz ? '1 quiz' : 'sans quiz';
+    const title = $('#estimate-title');
+    const sub = $('#estimate-sub');
+    if (title) title.textContent = `≈ ${count} page${count > 1 ? 's' : ''} · ${q}`;
+    if (sub) sub.textContent = `structure ${t.label}`;
+  }
+
   function fillImportForm() {
     const t = $('#session-title');
     if (t) t.value = state.importOpts.title;
@@ -196,29 +255,41 @@
     if (level) level.value = state.importOpts.level;
     $$('[data-seg="subject"] button').forEach((b) => b.classList.toggle('is-on', b.dataset.value === state.importOpts.subject));
     $$('[data-seg="duration"] button').forEach((b) => b.classList.toggle('is-on', Number(b.dataset.value) === Number(state.importOpts.duration)));
+    renderTemplates();
+    updateEstimate();
   }
 
   function createFromImport(blank = false) {
+    const template = blank ? 'blank' : state.importOpts.template;
     const opts = {
       title: ($('#session-title')?.value || '').trim() || 'Nouvelle séance',
       subject: state.importOpts.subject,
       level: state.importOpts.level,
       duration: state.importOpts.duration,
+      template,
       attachments: blank ? [] : state.importFiles.map((f) => f.name)
     };
     const s = D.createSession(opts);
     s.coverWord = opts.level.toUpperCase();
     if (!blank) {
-      const quiz = s.pages.find((p) => p.kind === 'quiz');
-      if (quiz) quiz.data.questions = [{
-        q: 'Quelle question voulez-vous poser ?',
-        options: ['La bonne réponse', 'Une autre réponse', 'Une troisième réponse'],
-        correct: 0,
-        good: 'Bonne réponse !',
-        bad: 'Ce n’est pas la bonne réponse.'
-      }];
+      const includeQuiz = !$('#opt-quiz') || $('#opt-quiz').checked;
+      let quiz = s.pages.find((p) => p.kind === 'quiz');
+      if (!includeQuiz && quiz) s.pages = s.pages.filter((p) => p.kind !== 'quiz');
+      if (includeQuiz && !quiz) {
+        quiz = D.createPage('quiz');
+        const synth = s.pages.findIndex((p) => p.kind === 'synthesis');
+        s.pages.splice(synth >= 0 ? synth : s.pages.length, 0, quiz);
+      }
+      if (includeQuiz && quiz) {
+        quiz.data.questions = [{
+          q: 'Quelle question voulez-vous poser ?',
+          options: ['La bonne réponse', 'Une autre réponse', 'Une troisième réponse'],
+          correct: 0,
+          good: 'Bonne réponse !',
+          bad: 'Ce n’est pas la bonne réponse.'
+        }];
+      }
       s.attachments = opts.attachments;
-      if (!$('#opt-quiz') || !$('#opt-quiz').checked) s.pages = s.pages.filter((p) => p.kind !== 'quiz');
     }
     state.sessions.push(s);
     state.currentId = s.id;
@@ -521,6 +592,44 @@
       </div>`;
       return;
     }
+    if (kind === 'project') {
+      const pr = (D.PROJECTS || []).find((x) => x.id === payload);
+      if (!pr) return;
+      const subject = (D.SUBJECTS[pr.subject] || D.SUBJECTS.histoire).label;
+      root.innerHTML = `<div class="modal-root" data-backdrop>
+        <div class="modal modal-project" role="dialog" aria-modal="true" aria-labelledby="m-project">
+          <button class="icon-btn project-close" data-close-modal aria-label="Fermer"><svg class="ico"><use href="#i-close"/></svg></button>
+          <div class="project-hero">
+            <img src="${esc(pr.cover)}" alt="Aperçu de ${esc(pr.title)}">
+            <div class="project-hero-text">
+              <span class="project-hero-kicker">Projet interactif · ${esc(subject)} · ${esc(pr.level)}</span>
+              <h2 id="m-project">${esc(pr.title)}</h2>
+              <p>${esc(pr.subtitle)}</p>
+            </div>
+          </div>
+          <div class="modal-body">
+            <p class="project-long">${esc(pr.description)}</p>
+            <div class="project-facts">
+              <span><strong>${pr.questions}</strong><small>questions</small></span>
+              <span><strong>${pr.acts}</strong><small>actes</small></span>
+              <span><strong>${pr.duration} min</strong><small>en classe</small></span>
+              <span><strong>${esc(pr.level)}</strong><small>niveau</small></span>
+            </div>
+            <div class="project-structure">
+              <h3>Structure de l’enquête</h3>
+              <ol>${(pr.phases || []).map((ph) => `<li><strong>${esc(ph.title)}</strong><span>${esc(ph.detail)}</span></li>`).join('')}</ol>
+            </div>
+            <div class="project-tags">${(pr.tags || []).map((tg) => `<span>${esc(tg)}</span>`).join('')}</div>
+            <p class="project-credit">${esc(pr.credit)}</p>
+          </div>
+          <div class="modal-foot project-foot">
+            <button class="btn btn-ghost" data-project-teacher="${pr.id}"><svg class="ico"><use href="#i-users"/></svg>Tableau de bord prof</button>
+            <button class="btn btn-primary" data-project-launch="${pr.id}"><svg class="ico"><use href="#i-play"/></svg>Lancer l’enquête</button>
+          </div>
+        </div>
+      </div>`;
+      return;
+    }
     if (kind === 'menu') {
       const s = state.sessions.find((x) => x.id === payload);
       if (!s) return;
@@ -581,7 +690,7 @@
     if (name !== 'generate') clearGeneration();
     document.body.classList.toggle('is-editing', name === 'editor');
     SCREENS.forEach((s) => $('#screen-' + s)?.classList.toggle('is-active', s === name));
-    $$('.rail-link').forEach((a) => a.classList.toggle('is-active', (a.getAttribute('href') || '').includes('/' + name)));
+    $$('.rail-link').forEach((a) => a.classList.toggle('is-active', a.dataset.nav === name));
     if (name === 'editor') { renderEditor(true); closeInspector(); }
     if (name === 'library') renderLibrary();
     if (name === 'import') { fillImportForm(); renderFiles(); }
@@ -632,6 +741,38 @@
     const t = e.target;
 
     if (t.closest('[data-go]')) { go(t.closest('[data-go]').dataset.go); return; }
+
+    const scrollEl = t.closest('[data-scroll]');
+    if (scrollEl) {
+      e.preventDefault();
+      const id = scrollEl.dataset.scroll;
+      if (state.screen !== 'library') go('library');
+      setTimeout(() => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 260);
+      return;
+    }
+
+    const projectOpen = t.closest('[data-project-open]');
+    if (projectOpen) { openModal('project', projectOpen.dataset.projectOpen); return; }
+    const projectLaunch = t.closest('[data-project-launch]');
+    if (projectLaunch) {
+      const pr = (D.PROJECTS || []).find((x) => x.id === projectLaunch.dataset.projectLaunch);
+      if (pr) window.open(pr.url, '_blank', 'noopener');
+      return;
+    }
+    const projectTeacher = t.closest('[data-project-teacher]');
+    if (projectTeacher) {
+      const pr = (D.PROJECTS || []).find((x) => x.id === projectTeacher.dataset.projectTeacher);
+      if (pr) window.open(pr.teacherUrl, '_blank', 'noopener');
+      return;
+    }
+
+    const tplOpt = t.closest('[data-template]');
+    if (tplOpt) {
+      state.importOpts.template = tplOpt.dataset.template;
+      renderTemplates();
+      updateEstimate();
+      return;
+    }
 
     const example = t.closest('[data-open-viewer]');
     if (example) {
@@ -1094,6 +1235,7 @@
       }
     }
     if (el.id === 'file-input') { addImportFiles(el.files); el.value = ''; }
+    if (el.id === 'opt-quiz') updateEstimate();
     if (el.id === 'level') { state.importOpts.level = el.value; }
     if (el.id === 'import-json-input') {
       const f = el.files && el.files[0];

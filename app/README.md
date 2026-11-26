@@ -10,19 +10,25 @@ npx serve .
 
 | Route | Écran |
 | --- | --- |
-| `#/library` | Bibliothèque |
-| `#/import` | Nouvelle séance : documents, titre, réglages |
+| `#/library` | Bibliothèque : séances, projets invités, filtres |
+| `#/import` | Nouvelle séance : documents, structure, réglages |
 | `#/generate` | Transition de préparation |
 | `#/editor` | Éditeur de la séance courante |
 | `#/viewer/0…n` | Mode séance |
 | `#/partage/<données>` | Import d'une séance partagée, puis lecture |
+
+## Séances et projets
+
+- **Séances** : objets éditables, stockés dans `localStorage`.
+- **Projets** : ressources statiques dans `data.js` (`PROJECTS`). « Mystère en Égypte » est une enquête 6e hébergée sur `louskyfly.github.io/mystere-en-egypte`. La fiche affiche la structure ; le bouton lance le jeu dans un nouvel onglet.
+- **Structures** : `TEMPLATES` dans `data.js` (découverte, analyse, enquête, révision, évaluation, page blanche).
 
 ## Modèle de données
 
 ```js
 session = {
   id, title, subject: 'histoire' | 'geo' | 'emc', level, duration,
-  theme, coverWord, status,
+  theme, coverWord, status, template,
   attachments: ['fichier.pdf'],
   pages: [{
     id, kind, name, minutes, note,
@@ -56,6 +62,8 @@ Les schémas de formulaire sont dans `data.js` (`SCHEMAS`), le rendu dans `slide
 3. Ajouter une page, la dupliquer, la déplacer, la supprimer.
 4. Partager le lien, l'ouvrir dans un autre navigateur : la séance est importée.
 5. Exporter le `.json` puis le réimporter.
+6. Ouvrir la fiche « Mystère en Égypte » et lancer l'enquête.
+7. Créer une séance avec chaque structure (découverte, analyse, enquête, révision, évaluation).
 
 ## Limites
 

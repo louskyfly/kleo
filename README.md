@@ -9,6 +9,8 @@ Kléo transforme un cours en **séance interactive** : pages, frise, carte, cart
 ## Ce qui fonctionne en v2
 
 - **Bibliothèque réelle** : créer, dupliquer, renommer, supprimer, filtrer, importer et exporter des séances.
+- **Projets invités** : « Mystère en Égypte » (6e), fiche, structure en 5 actes et lancement de l'enquête.
+- **Structures de séance** : découverte, analyse de document, enquête, révision, évaluation, page blanche.
 - **Éditeur fonctionnel** : 9 types de pages, formulaires de contenu, réorganisation, duplication et suppression.
 - **Constructeur de quiz** : questions, réponses, bonne réponse, messages de correction, vrai/faux, aperçu immédiat.
 - **Mode séance** : score, correction question par question, sommaire, notes du professeur, minuteur, clavier et tactile.
@@ -30,14 +32,32 @@ Kléo transforme un cours en **séance interactive** : pages, frise, carte, cart
 | --- | --- |
 | ![Résultat](docs/previews/v2-quiz-result.png) | ![Partage](docs/previews/v2-share.png) |
 
+| Projet invité : Mystère en Égypte | Structures de séance |
+| --- | --- |
+| ![Fiche projet](docs/previews/v2-project-modal.png) | ![Structures](docs/previews/v2-import-templates.png) |
+
+## Projet invité : Mystère en Égypte
+
+La bibliothèque accueille aussi des **projets interactifs** réalisés en dehors de Kléo.
+
+« **Mystère en Égypte** » est une enquête pour une classe de 6e : le professeur Désiré a disparu, les élèves remontent sa piste du Caire à Gizeh, lisent les documents, résolvent les énigmes et répondent sur une copie papier. 5 actes, 30 questions, environ 1 heure.
+
+- **Fiche** : structure de l'enquête, niveau, durée, crédits.
+- **Lancer l'enquête** : ouvre le jeu autonome, optimisé iPad paysage.
+- **Tableau de bord prof** : suivi des élèves, feuille de questions et corrigé.
+
+Le jeu reste hébergé séparément : [louskyfly.github.io/mystere-en-egypte](https://louskyfly.github.io/mystere-en-egypte/).
+
 ## Utiliser Kléo
 
-1. **Créer** une séance : titre, matière, niveau, durée, quiz initial.
+1. **Créer** une séance : titre, matière, niveau, durée, structure, quiz initial.
 2. **Ouvrir l'éditeur** et choisir une page dans le plan.
 3. **Modifier** le contenu dans le panneau de droite (ou le tiroir « Éditer » sur iPad).
 4. **Ajouter une page** : frise, carte, cartes, document, quiz, dépôt, synthèse.
 5. **Aperçu** : jouer la séance, répondre au quiz, voir le score.
 6. **Partager** : copier le lien ou télécharger le fichier `.json`.
+
+Les **projets interactifs** se trouvent dans la bibliothèque, sous « Projets interactifs » : ouvrir la fiche pour voir la structure, puis lancer l'enquête.
 
 Raccourcis : `←` `→` dans le mode séance, `Échap` pour fermer, `Ctrl/⌘ + S` pour enregistrer, `Ctrl/⌘ + K` pour la recherche.
 
@@ -61,6 +81,8 @@ app/                    application v2 (aucune dépendance)
   app.js                bibliothèque, éditeur, mode séance, partage
   styles.css            design system et pages
   v2.css                édition, tiroirs, formulaires
+  projects.css          projets invités et structures de séance
+  projects/             visuels des projets
   assets/europe.svg     fond de carte (Natural Earth, domaine public)
 mockup/                 maquette v1 conservée pour référence
 docs/
