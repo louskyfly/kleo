@@ -1,8 +1,10 @@
-# Kléo — la fabrique de séances
+# Clio — la bibliothèque d'expériences
 
-> **Mode bibliothèque (actuel).** L'interface ne montre plus que la bibliothèque des expériences : *Mystère en Égypte* (6e) et *URSS de Staline / Allemagne nazie* (3e). Un clic ouvre l'expérience, sans fiche intermédiaire. L'atelier (import, génération, éditeur, séances) est **masqué, pas supprimé** : il suffit de passer `LIBRARY_ONLY` à `false` en haut de `app/app.js` pour le réafficher.
+> **Mode bibliothèque (actuel).** L'interface ne montre que la bibliothèque, rangée en dossiers **6e, 5e, 4e, 3e** : *Mystère en Égypte* (6e) et *URSS de Staline / Allemagne nazie* (3e). Un clic ouvre l'expérience, sans fiche intermédiaire. L'atelier (import, génération, éditeur, séances) est **masqué, pas supprimé** : il suffit de passer `LIBRARY_ONLY` à `false` en haut de `app/app.js` pour le réafficher.
 
-> **Nom de travail.** Remplacer « Kléo » par le nom définitif se fait en une passe (`grep -ri kleo`).
+> **Panneau d'accès.** Code professeur : `314324` (défini dans `app/live.js`, jamais affiché dans la page). Chaque expérience a son lien, son QR, un **QR plein écran** pour le tableau et son propre bouton **Fermer / Rouvrir**, indépendamment des autres.
+
+> **Nom de travail.** Remplacer « Clio » par le nom définitif se fait en une passe (`grep -ri kleo`).
 
 Kléo transforme un cours en **séance interactive** : pages, frise, carte, cartes à retourner, étude de document, quiz noté, dépôt de devoir. Le tout se crée dans le navigateur, s'enregistre sur l'appareil et se partage par lien. Prévu pour être projeté et manipulé sur iPad.
 

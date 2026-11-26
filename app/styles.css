@@ -133,6 +133,7 @@ body.is-editing .rail { display: none; }
 .brand { display: flex; align-items: center; gap: 10px; padding: 0 8px; }
 .brand-mark { width: 34px; height: 34px; border-radius: 11px; background: var(--ink); color: var(--paper); display: grid; place-items: center; }
 .brand-mark svg { width: 26px; height: 26px; }
+.brand-mark img { width: 100%; height: 100%; display: block; border-radius: inherit; }
 .brand-word { font-family: var(--font-display); font-size: 25px; font-weight: 600; letter-spacing: -.03em; }
 .brand-word span { color: var(--terre); }
 .rail-nav { display: flex; flex-direction: column; gap: 4px; }

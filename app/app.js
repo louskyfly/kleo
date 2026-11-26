@@ -1,5 +1,5 @@
 /* ============================================================
-   Kléo v2 — application
+   Clio v2 — application
    Bibliothèque, éditeur, mode séance, partage.
    ============================================================ */
 (() => {
@@ -14,6 +14,8 @@
      mais n'est plus accessible depuis l'interface. Passer à false pour
      le réafficher. */
   const LIBRARY_ONLY = true;
+  const LIBRARY_LEVELS = ['6e', '5e', '4e', '3e'];
+  let levelFilter = 'all';
 
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
@@ -144,6 +146,17 @@
       <p class="project-desc">${esc(p.description)}</p>
       <div class="project-tags">${(p.tags || []).map((t) => `<span>${esc(t)}</span>`).join('')}</div>`;
     if (LIBRARY_ONLY) {
+      if (!projectIsOpen(p.id)) {
+        return `<article class="project-card project-card-link is-closed">
+          <div class="project-cover">${coverInner}<span class="project-closed">Fermée</span></div>
+          <div class="project-body">
+            ${body}
+            <div class="project-actions">
+              <span class="badge is-closed">Fermée par le professeur</span>
+            </div>
+          </div>
+        </article>`;
+      }
       return `<article class="project-card project-card-link">
         <a class="project-cover" href="${esc(p.url)}" target="_blank" rel="noopener" aria-label="Ouvrir ${esc(p.title)}">${coverInner}</a>
         <div class="project-body">
@@ -166,16 +179,42 @@
     </article>`;
   }
 
+  function renderLevels(allProjects) {
+    const mount = $('#level-folders');
+    if (!mount) return;
+    const projects = allProjects || D.PROJECTS || [];
+    const tiles = [
+      { id: 'all', label: 'Toutes les classes', count: projects.length },
+      ...LIBRARY_LEVELS.map((lvl) => ({ id: lvl, label: lvl, count: projects.filter((p) => p.level === lvl).length }))
+    ];
+    mount.innerHTML = tiles
+      .map(
+        (t) => `<button type="button" class="level-folder${levelFilter === t.id ? ' is-on' : ''}" data-level="${esc(t.id)}">
+          <svg class="ico"><use href="#i-folder"/></svg>
+          <span><strong>${esc(t.label)}</strong><small>${t.count} expérience${t.count > 1 ? 's' : ''}</small></span>
+        </button>`
+      )
+      .join('');
+  }
+
   function renderProjects() {
-    const projects = D.PROJECTS || [];
+    const all = D.PROJECTS || [];
+    const projects = LIBRARY_ONLY && levelFilter !== 'all' ? all.filter((p) => p.level === levelFilter) : all;
     const section = $('#projects-section');
-    if (section) section.style.display = projects.length ? '' : 'none';
+    if (section) section.style.display = all.length ? '' : 'none';
+    if (LIBRARY_ONLY) renderLevels(all);
     const grid = $('#project-grid');
-    if (grid) grid.innerHTML = projects.map(projectCard).join('');
+    if (grid) {
+      grid.innerHTML = projects.length
+        ? projects.map(projectCard).join('')
+        : `<div class="empty-grid"><div class="empty-card"><span class="empty-icon"><svg class="ico"><use href="#i-folder"/></svg></span>
+             <h3>Aucune expérience en ${esc(levelFilter)}.</h3><p>Les prochaines expériences de ce niveau viendront se ranger ici.</p>
+           </div></div>`;
+    }
     const count = $('#project-count');
     if (count) {
       count.textContent = LIBRARY_ONLY
-        ? `${plural(projects.length, 'expérience', 'expériences')} disponible${projects.length > 1 ? 's' : ''} · cliquez pour ouvrir.`
+        ? `${plural(projects.length, 'expérience', 'expériences')} · cliquez pour ouvrir.`
         : projects.length
           ? `${plural(projects.length, 'projet', 'projets')} prêt${projects.length > 1 ? 's' : ''} à lancer, à côté de vos séances.`
           : 'Des enquêtes prêtes à lancer.';
@@ -493,16 +532,70 @@
     dash.hidden = !authed;
     if (!authed) return;
 
-    const select = $('#prof-session');
-    if (select) {
-      select.innerHTML = state.sessions.length
-        ? state.sessions.map((s) => `<option value="${s.id}" ${s.id === state.currentId ? 'selected' : ''} title="${esc(s.title)}">${esc(s.title)}</option>`).join('')
-        : '<option value="">Aucune séance</option>';
-    }
     updateProfGate(KleoLive.gateState());
-    const project = (D.PROJECTS || [])[0];
-    if (project) KleoLive.makeQR($('#prof-project-qr'), project.url);
-    showPublishedQr(state.sessions.find((s) => s.id === (select ? select.value : state.currentId)));
+    renderProfProjects();
+  }
+
+  function projectIsOpen(projectId) {
+    if (!window.KleoLive) return true;
+    const st = KleoLive.projectState(projectId);
+    if (!st) return true;
+    return st.open !== false;
+  }
+
+  function renderProfProjects() {
+    const mount = $('#prof-projects');
+    if (!mount) return;
+    const projects = D.PROJECTS || [];
+    mount.innerHTML = projects
+      .map((p) => {
+        const open = projectIsOpen(p.id);
+        return `<article class="panel prof-card prof-exp">
+          <div class="prof-card-head">
+            <div><span class="badge badge-terre">${esc(p.level)} · ${esc(p.duration)} min</span><h2>${esc(p.title)}</h2></div>
+            <span class="badge ${open ? 'is-open' : 'is-closed'}">${open ? 'Ouverte' : 'Fermée'}</span>
+          </div>
+          <div class="prof-exp-body">
+            <div class="qr-box" id="prof-qr-${esc(p.id)}"></div>
+            <div class="prof-exp-info">
+              <p class="meta">${esc(p.subtitle)}</p>
+              <p class="prof-link">${esc(p.url)}</p>
+              <div class="prof-exp-actions">
+                <button class="btn btn-primary btn-sm" data-prof-qr="${esc(p.id)}"><svg class="ico"><use href="#i-expand"/></svg>QR en grand</button>
+                <button class="btn btn-ghost btn-sm" data-prof-copy="${esc(p.id)}">Copier le lien</button>
+                <button class="btn btn-ghost btn-sm" data-prof-open="${esc(p.id)}">Ouvrir</button>
+                <button class="btn btn-${open ? 'ghost' : 'primary'} btn-sm" data-prof-toggle="${esc(p.id)}">${open ? 'Fermer cette expérience' : 'Rouvrir cette expérience'}</button>
+              </div>
+            </div>
+          </div>
+        </article>`;
+      })
+      .join('');
+    projects.forEach((p) => {
+      const box = document.getElementById('prof-qr-' + p.id);
+      if (box) KleoLive.makeQR(box, p.url, 180);
+    });
+  }
+
+  function openQrScreen(text, title) {
+    const screen = $('#qr-screen');
+    const box = $('#qr-screen-box');
+    if (!screen || !box) return;
+    const titleEl = $('#qr-screen-title');
+    const codeEl = $('#qr-screen-code');
+    if (titleEl) titleEl.textContent = title || 'Scanner pour ouvrir';
+    if (codeEl) codeEl.textContent = text;
+    box.innerHTML = '';
+    KleoLive.makeQR(box, text, 520);
+    screen.hidden = false;
+    document.body.classList.add('qr-open');
+  }
+
+  function closeQrScreen() {
+    const screen = $('#qr-screen');
+    if (!screen) return;
+    screen.hidden = true;
+    document.body.classList.remove('qr-open');
   }
 
   /* ------------------------------------------------------------
@@ -629,7 +722,7 @@
               <button class="btn btn-soft btn-sm" data-go-prof>Ouvrir</button>
             </div>
             <div class="share-options">
-              <div class="share-opt"><div><span>Fichier de la séance</span><small>Réimportable dans Kléo</small></div><button class="btn btn-soft btn-sm" data-export-json><svg class="ico"><use href="#i-download"/></svg>JSON</button></div>
+              <div class="share-opt"><div><span>Fichier de la séance</span><small>Réimportable dans Clio</small></div><button class="btn btn-soft btn-sm" data-export-json><svg class="ico"><use href="#i-download"/></svg>JSON</button></div>
               <div class="share-opt"><div><span>Tester le lien</span><small>Ouvre le lien dans un nouvel onglet</small></div><button class="btn btn-soft btn-sm" data-open-share>Ouvrir</button></div>
               <div class="share-opt"><div><span>Nom de la séance</span><small>${esc(s.title)}</small></div><span class="badge badge-soft">${s.pages.length} pages</span></div>
             </div>
@@ -871,6 +964,57 @@
      ------------------------------------------------------------ */
   document.addEventListener('click', (e) => {
     const t = e.target;
+
+    if (t.closest('#qr-screen-close') || t.id === 'qr-screen') { closeQrScreen(); return; }
+
+    const levelBtn = t.closest('[data-level]');
+    if (levelBtn) {
+      levelFilter = levelBtn.dataset.level || 'all';
+      renderProjects();
+      return;
+    }
+
+    const profQr = t.closest('[data-prof-qr]');
+    if (profQr) {
+      const project = (D.PROJECTS || []).find((p) => p.id === profQr.dataset.profQr);
+      if (project) openQrScreen(project.url, project.title);
+      return;
+    }
+
+    const profCopy = t.closest('[data-prof-copy]');
+    if (profCopy) {
+      const project = (D.PROJECTS || []).find((p) => p.id === profCopy.dataset.profCopy);
+      if (project) {
+        navigator.clipboard?.writeText(project.url).then(
+          () => toast('Lien copié.'),
+          () => toast('Copie impossible sur ce navigateur.')
+        );
+      }
+      return;
+    }
+
+    const profOpen = t.closest('[data-prof-open]');
+    if (profOpen) {
+      const project = (D.PROJECTS || []).find((p) => p.id === profOpen.dataset.profOpen);
+      if (project) window.open(project.url, '_blank', 'noopener');
+      return;
+    }
+
+    const profToggle = t.closest('[data-prof-toggle]');
+    if (profToggle) {
+      const project = (D.PROJECTS || []).find((p) => p.id === profToggle.dataset.profToggle);
+      if (!project) return;
+      const open = projectIsOpen(project.id);
+      profToggle.disabled = true;
+      KleoLive.publishProjectGate(project.id, !open, (err) => {
+        profToggle.disabled = false;
+        if (err) { toast('Connexion au serveur de classe impossible.'); return; }
+        toast(open ? 'Expérience fermée.' : 'Expérience rouverte.');
+        renderProfProjects();
+        renderProjects();
+      });
+      return;
+    }
 
     if (t.closest('[data-go]')) { go(t.closest('[data-go]').dataset.go); return; }
 
@@ -1462,7 +1606,7 @@
           const list = Array.isArray(data) ? data : [data];
           list.forEach((x) => { if (x && Array.isArray(x.pages) && x.pages.length) { x.id = D.uid('s'); x.updatedAt = D.now(); state.sessions.push(x); } });
           save(true); renderLibrary(); toast(`${list.length} séance(s) importée(s).`);
-        } catch (err) { toast('Fichier illisible : ce n’est pas un export Kléo.'); }
+        } catch (err) { toast('Fichier illisible : ce n’est pas un export Clio.'); }
       };
       reader.readAsText(f);
       el.value = '';
@@ -1514,6 +1658,7 @@
       return;
     }
     if (e.key === 'Escape') {
+      if (!$('#qr-screen')?.hidden) { closeQrScreen(); return; }
       if ($('#modal-root').children.length) { closeModal(); return; }
       if (!$('#drawer-scrim').hidden) { closeDrawer(); return; }
       if ($('#editor-inspector')?.classList.contains('is-open')) { closeInspector(); return; }
@@ -1550,8 +1695,13 @@
   /* ------------------------------------------------------------
      Démarrage
      ------------------------------------------------------------ */
-  if (window.KleoLive) KleoLive.onGate(updateProfGate);
-  renderLibrary();
+  if (window.KleoLive) {
+    KleoLive.onGate((g) => {
+      updateProfGate(g);
+      renderProfProjects();
+      if (LIBRARY_ONLY) renderProjects();
+    });
+  }  renderLibrary();
   renderFiles();
   route();
   window.addEventListener('beforeunload', () => { state.genTimers.forEach(clearTimeout); });

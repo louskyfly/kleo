@@ -1,5 +1,5 @@
 /* ============================================================
-   Kléo v2 — données, schémas et persistance
+   Clio v2 — données, schémas et persistance
    Aucune dépendance, compatible file:// et GitHub Pages.
    ============================================================ */
 (function () {

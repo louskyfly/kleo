@@ -9,13 +9,14 @@ window.KleoLive = (() => {
   const ROOT = 'kleo/live/7d3f9a1c';
   const GATE_TOPIC = ROOT + '/gate';
   const SESSION_PREFIX = ROOT + '/session/';
-  const TEACHER_CODE = '2026';
+  const PROJECT_PREFIX = ROOT + '/project/';
+  const TEACHER_CODE = '314324';
   const APP_URL = location.protocol === 'file:'
     ? 'https://louskyfly.github.io/kleo/'
     : location.href.split('#')[0];
 
   const $ = (s, r = document) => r.querySelector(s);
-  const state = { open: true, updatedAt: null, known: false };
+  const state = { open: true, updatedAt: null, known: false, projects: {} };
   const listeners = new Set();
 
   let client = null;
@@ -58,11 +59,21 @@ window.KleoLive = (() => {
     client.on('connect', () => {
       connected = true;
       client.subscribe(GATE_TOPIC, { qos: 1 });
+      client.subscribe(PROJECT_PREFIX + '+', { qos: 1 });
       connectWaiters.forEach((w) => w?.(true));
       connectWaiters = [];
       cb?.(true);
     });
     client.on('message', (topic, payload) => {
+      if (topic.startsWith(PROJECT_PREFIX)) {
+        const id = topic.slice(PROJECT_PREFIX.length);
+        try {
+          const data = JSON.parse(payload.toString());
+          state.projects[id] = { open: !!data.open, updatedAt: data.updatedAt || null };
+          emit();
+        } catch (e) {}
+        return;
+      }
       if (topic !== GATE_TOPIC) return;
       try {
         const data = JSON.parse(payload.toString());
@@ -100,8 +111,25 @@ window.KleoLive = (() => {
     });
   }
 
-  function publishSession(session, code, cb) {
+  function publishProjectGate(projectId, open, cb) {
     connect((ok) => {
+      if (!ok) { cb?.(new Error('Connexion au serveur de classe impossible.')); return; }
+      const updatedAt = new Date().toISOString();
+      client.publish(PROJECT_PREFIX + String(projectId), JSON.stringify({ open, updatedAt }), { qos: 1, retain: true }, (err) => {
+        if (!err) {
+          state.projects[projectId] = { open, updatedAt };
+          emit();
+        }
+        cb?.(err || null);
+      });
+    });
+  }
+
+  function projectState(projectId) {
+    return state.projects[projectId] || null;
+  }
+
+  function publishSession(session, code, cb) {    connect((ok) => {
       if (!ok) { cb?.(new Error('Connexion au serveur de classe impossible.')); return; }
       const payload = JSON.stringify({ ...session, liveCode: code, publishedAt: new Date().toISOString() });
       client.publish(SESSION_PREFIX + code, payload, { qos: 1, retain: true }, (err) => cb?.(err || null));
@@ -135,15 +163,15 @@ window.KleoLive = (() => {
     });
   }
 
-  function makeQR(el, text) {
+  function makeQR(el, text, size = 220) {
     if (!el) return false;
     el.innerHTML = '';
     if (typeof QRCode === 'undefined') { el.textContent = text; return false; }
     try {
       new QRCode(el, {
         text,
-        width: 220,
-        height: 220,
+        width: size,
+        height: size,
         colorDark: '#152420',
         colorLight: '#ffffff',
         correctLevel: QRCode.CorrectLevel ? QRCode.CorrectLevel.M : 0
@@ -228,6 +256,8 @@ window.KleoLive = (() => {
     gateState: () => ({ ...state }),
     onGate,
     publishGate,
+    publishProjectGate,
+    projectState,
     publishSession,
     fetchSession,
     makeQR,

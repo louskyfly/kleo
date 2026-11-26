@@ -115,3 +115,29 @@ body.library-only .project-card-link .project-actions { margin-top: auto; paddin
 body.library-only .project-card-link { color: inherit; }
 body.library-only .project-card-link:hover h3 { color: var(--terre); }
 body.library-only .project-card-link h3 { transition: color .18s var(--ease); }
+
+/* Dossiers par niveau */
+.level-folders { display: flex; flex-wrap: wrap; gap: 10px; margin: 0 0 20px; }
+.level-folder {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px; border-radius: 14px;
+  border: 1px solid var(--line); background: var(--surface);
+  color: var(--ink); font: inherit; cursor: pointer;
+  transition: border-color .18s, background .18s, transform .18s;
+}
+.level-folder:hover { transform: translateY(-1px); border-color: var(--line-strong); }
+.level-folder.is-on { background: var(--ink); border-color: var(--ink); color: #F7F2E7; }
+.level-folder .ico { width: 18px; height: 18px; flex: none; opacity: .8; }
+.level-folder span { display: flex; flex-direction: column; line-height: 1.2; }
+.level-folder strong { font-size: 13px; font-weight: 600; }
+.level-folder small { font-size: 10.5px; opacity: .7; }
+
+/* Expérience fermée */
+.project-card-link.is-closed { opacity: .82; }
+.project-card-link.is-closed .project-cover img { filter: grayscale(.55); }
+.project-closed {
+  position: absolute; inset: auto 12px 12px auto; z-index: 3;
+  padding: 4px 10px; border-radius: 999px;
+  background: #7d2f2f; color: #fff7e8; font-size: 10.5px; letter-spacing: .06em; text-transform: uppercase;
+}
+.badge.is-closed { background: #f6dede; color: #7d2f2f; }
