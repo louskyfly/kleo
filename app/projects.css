@@ -199,3 +199,60 @@ body.is-editing-texts .project-card .project-actions { display: none; }
   .subject-watermark { width: 130px; height: 130px; top: -10px; }
   .subject-count { display: none; }
 }
+
+/* Dossiers de classe : plus grands, centrés */
+.level-folders {
+  justify-content: center;
+  gap: 14px;
+  margin: 20px 0 24px;
+}
+.level-folder {
+  padding: 18px 26px;
+  min-width: 168px;
+  min-height: 76px;
+  border-radius: 18px;
+  justify-content: center;
+  gap: 12px;
+}
+.level-folder .ico { width: 22px; height: 22px; }
+.level-folder strong { font-size: 17px; }
+.level-folder small { font-size: 12px; }
+.level-folder:hover { transform: translateY(-2px); }
+
+@media (max-width: 900px) {
+  .level-folders { gap: 8px; }
+  .level-folder { padding: 12px 14px; min-width: 0; min-height: 60px; flex: 1 1 30%; }
+  .level-folder strong { font-size: 14px; }
+  .level-folder small { font-size: 10px; }
+}
+
+/* Réglages */
+.settings-wrap { display: flex; flex-direction: column; gap: 16px; }
+.settings-card h2 {
+  margin: 0 0 4px;
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 500;
+}
+.settings-card .meta { margin: 0 0 10px; font-size: 12px; }
+.setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 12px 0;
+  border-top: 1px solid var(--line);
+  cursor: pointer;
+}
+.setting-row:first-of-type { border-top: 0; }
+.setting-row strong { display: block; font-size: 14px; font-weight: 600; }
+.setting-row small { display: block; margin-top: 2px; font-size: 11.5px; color: var(--muted); line-height: 1.5; }
+.setting-row .select-wrap { flex: none; min-width: 168px; }
+.settings-card .btn { align-self: flex-start; }
+
+/* Préférences d'affichage */
+body.hide-descriptions .project-desc { display: none; }
+body.compact-cards .project-tags,
+body.compact-cards .project-sub,
+body.compact-cards .badge-row { display: none; }
+body.compact-cards .project-body { padding-top: 14px; padding-bottom: 14px; }
