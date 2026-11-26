@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#F7F2E7">
-<title>Kléo — mes expériences</title>
-<meta name="description" content="Kléo — la bibliothèque des expériences interactives d'histoire-géographie : enquêtes, contrôles et parcours prêts à lancer.">
+<title>Clio — mes expériences</title>
+<meta name="description" content="Clio — la bibliothèque des expériences interactives d'histoire-géographie : enquêtes, contrôles et parcours prêts à lancer.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -13,7 +13,9 @@
 <link rel="stylesheet" href="v2.css">
 <link rel="stylesheet" href="projects.css">
 <link rel="stylesheet" href="access.css">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23152420'/%3E%3Cpath d='M20 18v28M44 18 26 33l19 13' stroke='%23F7F2E7' stroke-width='5' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3Ccircle cx='47' cy='17' r='4' fill='%23D9A441'/%3E%3C/svg%3E">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="manifest" href="manifest.webmanifest">
 </head>
 <body>
 
@@ -61,7 +63,7 @@
 
 <div id="gate-screen" class="gate-screen">
   <div class="gate-box">
-    <div class="gate-brand">kléo<span>.</span></div>
+    <div class="gate-brand">clio<span>.</span></div>
     <div class="gate-icon" id="gate-icon"><svg class="ico"><use href="#i-lock"/></svg></div>
     <p class="gate-kicker">Accès de classe</p>
     <h1 id="gate-title">Vérification de l’accès…</h1>
@@ -74,11 +76,11 @@
 
 <div class="app">
   <aside class="rail" aria-label="Navigation principale">
-    <a class="brand" href="#/library" aria-label="Kléo, bibliothèque">
+    <a class="brand" href="#/library" aria-label="Clio, bibliothèque">
       <span class="brand-mark" aria-hidden="true">
-        <svg viewBox="0 0 32 32"><path d="M9 7v18M23 7 12 16.5 23.5 25" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><circle cx="24.5" cy="6.5" r="2.2" fill="var(--safran)"/></svg>
+        <img src="icon.svg" alt="">
       </span>
-      <span class="brand-word">kléo<span>.</span></span>
+      <span class="brand-word">clio<span>.</span></span>
     </a>
 
     <nav class="rail-nav">
@@ -116,7 +118,7 @@
           <div class="hero-copy">
             <p class="eyebrow"><span class="live-dot"></span>L'atelier de séances</p>
             <h1 id="lib-title">Vos documents deviennent<br><em>une séance qui se vit.</em></h1>
-            <p class="lede">Déposez un cours ou partez d’une page blanche. Kléo propose une trame éditable — pages, quiz, frise, cartes — prête à projeter et à manipuler sur iPad.</p>
+            <p class="lede">Déposez un cours ou partez d’une page blanche. Clio propose une trame éditable — pages, quiz, frise, cartes — prête à projeter et à manipuler sur iPad.</p>
             <div class="hero-actions">
               <button class="btn btn-cream btn-lg" data-go="import"><svg class="ico"><use href="#i-upload"/></svg>Déposer mes documents</button>
               <button class="btn btn-ghost-cream btn-lg" data-open-viewer="0"><svg class="ico"><use href="#i-play"/></svg>Voir un exemple</button>
@@ -158,6 +160,7 @@
             </div>
             <span class="badge badge-ready">Prêt à lancer</span>
           </div>
+          <div class="level-folders" id="level-folders"></div>
           <div class="project-grid" id="project-grid"></div>
         </section>
 
@@ -180,7 +183,7 @@
         </section>
 
         <footer class="page-foot">
-          <span>Kléo · v2 · les séances sont enregistrées sur cet appareil · <a href="#/prof">Panneau professeur</a></span>
+          <span>Clio · v2 · les séances sont enregistrées sur cet appareil · <a href="#/prof">Panneau professeur</a></span>
           <span>Partage par lien · export JSON</span>
         </footer>
       </div>
@@ -206,7 +209,7 @@
           <div class="panel-head">
             <div>
               <h2>Déposez vos documents</h2>
-              <p class="panel-sub">Un chapitre, un PDF, des photos, un lien. Kléo prépare la trame ; vous complétez le fond.</p>
+              <p class="panel-sub">Un chapitre, un PDF, des photos, un lien. Clio prépare la trame ; vous complétez le fond.</p>
             </div>
             <span class="badge badge-soft">Privé par défaut</span>
           </div>
@@ -302,7 +305,7 @@
       <div class="gen-wrap">
         <div class="gen-copy">
           <p class="eyebrow"><span class="live-dot"></span>Préparation</p>
-          <h1 id="gen-title">Kléo pose la trame,<br><em>vous gardez le fond.</em></h1>
+          <h1 id="gen-title">Clio pose la trame,<br><em>vous gardez le fond.</em></h1>
           <p class="gen-sub" id="gen-sub">Histoire · 4e · 55 min</p>
 
           <ol class="gen-steps" id="gen-steps">
@@ -402,7 +405,7 @@
       <header class="focusbar prof-bar">
         <button class="icon-btn" data-go="library" aria-label="Retour à la bibliothèque"><svg class="ico"><use href="#i-arrow-left"/></svg></button>
         <div class="focusbar-title">
-          <p class="crumb">Kléo / Accès de classe</p>
+          <p class="crumb">Clio / Accès de classe</p>
           <h1 id="prof-title">Panneau d’accès</h1>
         </div>
         <span class="badge badge-terre">Professeur</span>
@@ -418,7 +421,7 @@
             <button id="prof-login-btn" class="btn btn-primary">Entrer</button>
           </div>
           <p id="prof-code-msg" class="form-warn" hidden>Code incorrect.</p>
-          <p class="meta tiny">Code par défaut : 2026. C’est un verrou de classe, pas une protection forte.</p>
+          <p class="meta tiny">Verrou de classe, pas une protection forte.</p>
         </div>
 
         <div id="prof-dashboard" hidden>
@@ -432,35 +435,19 @@
               <button class="btn btn-primary btn-lg" id="prof-gate-btn">Fermer l’accès</button>
               <p class="meta tiny" id="prof-gate-note">Le changement s’applique en quelques secondes.</p>
             </section>
-
-            <section class="panel prof-card">
-              <div class="prof-card-head">
-                <div><span class="badge badge-terre">QR de séance</span><h2>Faire scanner</h2></div>
-              </div>
-              <label class="efield"><span>Séance à publier</span><select id="prof-session" class="einput"></select></label>
-              <button class="btn btn-primary" id="prof-publish"><svg class="ico"><use href="#i-spark"/></svg>Publier et générer le QR</button>
-              <div class="prof-qr-zone" id="prof-qr-zone" hidden>
-                <div class="qr-box" id="prof-qr"></div>
-                <div class="prof-code"><span>Code</span><strong id="prof-code-value">—</strong></div>
-                <button class="btn btn-ghost btn-sm" id="prof-copy">Copier le lien</button>
-                <button class="btn btn-ghost btn-sm" id="prof-download">Télécharger le QR</button>
-              </div>
-              <p class="meta tiny">Le QR contient un lien court. Les élèves scannent : la séance s’ouvre dans Kléo.</p>
-            </section>
-
-            <section class="panel prof-card">
-              <div class="prof-card-head">
-                <div><span class="badge badge-terre">Projet</span><h2>Mystère en Égypte</h2></div>
-              </div>
-              <div class="qr-box" id="prof-project-qr"></div>
-              <p class="meta tiny">QR vers l’enquête 6e. Tableau de bord prof protégé par le code 2026.</p>
-              <button class="btn btn-ghost btn-sm" id="prof-project-open">Ouvrir le jeu</button>
-            </section>
           </div>
+
+          <div class="section-head section-head-wrap prof-exp-head">
+            <div>
+              <h2>Expériences</h2>
+              <p class="section-sub">Le lien et le QR de chaque expérience, et son ouverture indépendante.</p>
+            </div>
+          </div>
+          <div class="prof-projects" id="prof-projects"></div>
 
           <div class="panel prof-help">
             <strong>À savoir</strong>
-            <p>La séance et le verrou passent par un canal public MQTT : n’y mettez pas de données personnelles. Le verrou est une commodité de classe ; un élève qui sait manipuler le navigateur peut le contourner.</p>
+            <p>Chaque expérience s’ouvre et se ferme séparément. Le verrou est une commodité de classe ; un élève qui sait manipuler le navigateur peut le contourner.</p>
             <button class="btn btn-ghost btn-sm" id="prof-logout">Se déconnecter</button>
           </div>
         </div>
@@ -520,6 +507,16 @@
 </section>
 
 <div id="modal-root"></div>
+
+<!-- QR plein écran (projection au tableau) -->
+<div class="qr-screen" id="qr-screen" hidden>
+  <button class="qr-screen-close" id="qr-screen-close" aria-label="Fermer le QR code">×</button>
+  <div class="qr-screen-title" id="qr-screen-title">Scanner pour ouvrir</div>
+  <div class="qr-screen-box" id="qr-screen-box"></div>
+  <div class="qr-screen-code" id="qr-screen-code"></div>
+  <p class="qr-screen-hint">Appareil photo de la tablette → le lien s’ouvre tout seul.</p>
+</div>
+
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
 <script src="vendor/qrcode.min.js"></script>
