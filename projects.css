@@ -141,3 +141,61 @@ body.library-only .project-card-link h3 { transition: color .18s var(--ease); }
   background: #7d2f2f; color: #fff7e8; font-size: 10.5px; letter-spacing: .06em; text-transform: uppercase;
 }
 .badge.is-closed { background: #f6dede; color: #7d2f2f; }
+
+/* Matières, dossiers et décoration */
+.section-head-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+body.library-only #level-folders,
+body.library-only #project-grid { display: none !important; }
+
+.subject-block {
+  position: relative;
+  margin-top: 24px;
+  padding: 22px 22px 10px;
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  background: var(--surface);
+  overflow: hidden;
+}
+.subject-block + .subject-block { margin-top: 20px; }
+.subject-head { display: flex; align-items: center; gap: 14px; position: relative; z-index: 1; }
+.subject-icon {
+  width: 56px; height: 56px; flex: none; border-radius: 16px;
+  display: grid; place-items: center;
+  background: #152420; color: #F7F2E7;
+}
+.subject-icon .ico { width: 30px; height: 30px; }
+.subject-copy h2 {
+  margin: 0; font-family: var(--font-display); font-size: 30px;
+  font-weight: 500; letter-spacing: -.025em; line-height: 1.1;
+}
+.subject-copy p { margin: 4px 0 0; font-size: 13px; color: var(--muted); }
+.subject-count {
+  margin-left: auto; font-size: 12px; color: var(--muted);
+  border: 1px solid var(--line); border-radius: 999px; padding: 4px 10px;
+}
+.subject-watermark {
+  position: absolute; top: -18px; right: 8px; width: 190px; height: 190px;
+  opacity: .05; pointer-events: none;
+}
+.subject-geo .subject-icon { background: #1f4f4a; }
+.subject-geo .subject-watermark { color: #1f4f4a; }
+.subject-histoire .subject-watermark { color: #6b3b21; }
+.subject-block .level-folders { margin: 16px 0 14px; position: relative; z-index: 1; }
+.subject-block .project-grid { position: relative; z-index: 1; }
+
+body.is-editing-texts .project-card [contenteditable="true"] {
+  outline: 2px dashed var(--terre);
+  outline-offset: 3px;
+  background: #fffaf0;
+  border-radius: 4px;
+  cursor: text;
+}
+body.is-editing-texts .project-card .project-actions { display: none; }
+
+@media (max-width: 900px) {
+  .subject-block { padding: 16px 14px 8px; }
+  .subject-copy h2 { font-size: 24px; }
+  .subject-watermark { width: 130px; height: 130px; top: -10px; }
+  .subject-count { display: none; }
+}
