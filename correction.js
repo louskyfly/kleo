@@ -304,11 +304,51 @@ window.KleoCorrection = (() => {
     return Object.keys(gradesFor(pid, code, id)).length > 0;
   }
 
+  /* Correction automatique : boîte à outils et tri (réponses fermées). Proposée tant que le professeur n'a pas validé avec OK. */
+  const AUTO_SECTIONS = ['mechanisms', 'sort'];
+  function copySub(pid, code, id) {
+    const c = copiesOf(pid, code).find((x) => x.id === id);
+    return c && c.sub;
+  }
+  function autoItems(pid, code, id, section) {
+    const kit = st.kits[pid];
+    const sub = copySub(pid, code, id);
+    if (!kit || !sub) return [];
+    return kit.items(sub).filter((i) => AUTO_SECTIONS.includes(i.section) && i.correct !== null && (!section || i.section === section));
+  }
+  function pendingSections(pid, code, id) {
+    const saved = gradesFor(pid, code, id);
+    return AUTO_SECTIONS.filter((sec) => {
+      const list = autoItems(pid, code, id, sec);
+      return list.length && !list.some((i) => saved[i.key] !== undefined);
+    });
+  }
+  function proposalsFor(pid, code, id, sections) {
+    const out = {};
+    (sections || pendingSections(pid, code, id)).forEach((sec) => {
+      autoItems(pid, code, id, sec).forEach((i) => { out[i.key] = i.correct ? i.max : 0; });
+    });
+    return out;
+  }
+  function shownGrades(pid, code, id) {
+    return { ...proposalsFor(pid, code, id), ...gradesFor(pid, code, id) };
+  }
+  function validateSection(section) {
+    const { pid, code, copyId } = st;
+    if (!pid || !code || !copyId) return;
+    const k = copyKey(pid, code, copyId);
+    st.localGrades[k] = { ...gradesFor(pid, code, copyId), ...proposalsFor(pid, code, copyId, [section]) };
+    scheduleSave(pid, code, copyId);
+    renderView(true);
+  }
+
   function setGrade(key, value, max) {
     const { pid, code, copyId } = st;
     if (!pid || !code || !copyId) return;
     const k = copyKey(pid, code, copyId);
-    const grades = { ...gradesFor(pid, code, copyId) };
+    const pend = pendingSections(pid, code, copyId);
+    const own = autoItems(pid, code, copyId).find((i) => i.key === key);
+    const grades = { ...(own && pend.includes(own.section) ? proposalsFor(pid, code, copyId, [own.section]) : {}), ...gradesFor(pid, code, copyId) };
     if (value === '' || value == null || Number.isNaN(Number(value))) delete grades[key];
     else grades[key] = Math.min(Math.max(0, Number(value)), max);
     st.localGrades[k] = grades;
@@ -470,8 +510,9 @@ window.KleoCorrection = (() => {
       return;
     }
     const y = window.scrollY;
-    const grades = gradesFor(project.id, st.code, copy.id);
-    mount.innerHTML = kit.render({ copy, sub: copy.sub, grades, kit, code: st.code });
+    const grades = shownGrades(project.id, st.code, copy.id);
+    const pending = pendingSections(project.id, st.code, copy.id);
+    mount.innerHTML = kit.render({ copy, sub: copy.sub, grades, kit, code: st.code, pending });
     updateTotals();
     if (keepScroll) window.scrollTo({ top: y });
   }
@@ -479,6 +520,7 @@ window.KleoCorrection = (() => {
   function renderRegimes(C, ctx) {
     const { DOSSIERS, MECHANISMS, SORT_COLUMNS, SORT_ITEMS, EVALUATION } = C;
     const { sub, grades, kit, copy } = ctx;
+    const pending = ctx.pending || [];
     const max = kit.totalMax();
     const mechLabels = { urss: 'URSS de Staline', allemagne: 'Allemagne nazie', both: 'Les deux' };
     const colLabel = (id) => (SORT_COLUMNS.find((c) => c.id === id) || {}).label || 'Non placé';
@@ -537,11 +579,17 @@ window.KleoCorrection = (() => {
     const conclusion = String(sub.conclusion || '').trim();
     const sentences = conclusion ? conclusion.split(/[.!?…]+(?:\s|$)/).filter((x) => x.trim().length > 2).length : 0;
 
-    const secHead = (title, section, label, extra = '') => `<header class="corr-sec-head">
-        <div><h3>${esc(title)}</h3>${extra}</div>
+    const secHead = (title, section, label, extra = '') => {
+      const auto = pending.includes(section);
+      const action = auto
+        ? `<button type="button" class="btn btn-primary btn-sm corr-sec-ok" data-section-ok="${section}" title="Valider la correction automatique">OK</button>`
+        : `<button type="button" class="btn btn-ghost btn-sm corr-sec-max" data-section-max="${section}">${esc(label)}</button>`;
+      return `<header class="corr-sec-head${auto ? ' is-auto' : ''}">
+        <div><h3>${esc(title)}</h3>${extra}${auto ? '<p class="corr-auto-note">Corrigé automatiquement. Vérifie, ajuste si besoin, puis appuie sur OK.</p>' : ''}</div>
         <div class="corr-sec-right"><span class="corr-sec-total" data-sec-total="${section}">0</span><span class="meta"> / ${pts(secMax(section))}</span>
-        <button type="button" class="btn btn-ghost btn-sm corr-sec-max" data-section-max="${section}">${esc(label)}</button></div>
+        ${action}</div>
       </header>`;
+    };
 
     return `<article class="corr-doc">
       <header class="panel corr-head">
@@ -600,7 +648,9 @@ window.KleoCorrection = (() => {
     const { pid, code, copyId } = st;
     if (!pid || !code || !copyId) return;
     const kit = st.kits[pid];
-    const grades = gradesFor(pid, code, copyId);
+    const grades = shownGrades(pid, code, copyId);
+    const pend = pendingSections(pid, code, copyId);
+    const pendKeys = new Set(Object.keys(proposalsFor(pid, code, copyId, pend)));
     document.querySelectorAll('#corr-view [data-total]').forEach((el) => { el.textContent = pts(totalOf(grades)); });
     if (kit) {
       const copy = copiesOf(pid, code).find((c) => c.id === copyId);
@@ -615,6 +665,7 @@ window.KleoCorrection = (() => {
       const max = Number(input.dataset.max);
       const v = grades[el.dataset.cg];
       el.classList.toggle('is-full', v !== undefined && Number(v) >= max);
+      el.classList.toggle('is-auto', pendKeys.has(el.dataset.cg));
       if (document.activeElement !== input) input.value = v === undefined ? '' : v;
     });
     const s = st.saving[copyKey(pid, code, copyId)];
@@ -718,6 +769,8 @@ window.KleoCorrection = (() => {
       }
       const mx = t.closest('[data-grade-max]');
       if (mx) { setGrade(mx.dataset.gradeMax, Number(mx.dataset.max), Number(mx.dataset.max)); return; }
+      const ok = t.closest('[data-section-ok]');
+      if (ok) { validateSection(ok.dataset.sectionOk); toast('Correction validée.'); return; }
       const sm = t.closest('[data-section-max]');
       if (sm) {
         const kit = st.kits[st.pid];
