@@ -20,6 +20,48 @@
     { id: 'geo', label: 'Géographie', icon: 'i-planet', art: 'assets/geo-hemisphere.svg', line: 'Territoires, cartes et enjeux du monde d’aujourd’hui.' }
   ];
   const subjectFilters = { histoire: 'all', geo: 'all' };
+  const SESSIONS_DB = 'https://sync-3626f-default-rtdb.europe-west1.firebasedatabase.app/enquete-regimes-totalitaires/sessions';
+  const SESSION_KEY = 'clio_enquete_sessions';
+  const SESSION_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+
+  function sessionCodes() {
+    try {
+      const raw = JSON.parse(localStorage.getItem(SESSION_KEY) || '{}');
+      return raw && typeof raw === 'object' ? raw : {};
+    } catch (e) {
+      return {};
+    }
+  }
+
+  function saveSessionCode(projectId, code) {
+    const codes = sessionCodes();
+    codes[projectId] = code;
+    try { localStorage.setItem(SESSION_KEY, JSON.stringify(codes)); } catch (e) {}
+  }
+
+  function randomSessionCode() {
+    const bytes = new Uint8Array(8);
+    crypto.getRandomValues(bytes);
+    const chars = Array.from(bytes, (b) => SESSION_ALPHABET[b % SESSION_ALPHABET.length]);
+    return chars.slice(0, 4).join('') + '-' + chars.slice(4).join('');
+  }
+
+  function studentSessionLink(project, code) {
+    return project.url + '?classe=' + encodeURIComponent(code);
+  }
+
+  async function createSessionCode(project) {
+    for (let attempt = 0; attempt < 6; attempt += 1) {
+      const code = randomSessionCode();
+      const response = await fetch(SESSIONS_DB + '/' + code + '/meta.json', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ createdAt: Date.now(), app: 'clio' })
+      });
+      if (response.ok) return code;
+    }
+    throw new Error('session');
+  }
   const SETTINGS_KEY = 'clio_settings';
   const DEFAULT_SETTINGS = { textSize: 'normal', descriptions: true, compact: false };
   let settings = { ...DEFAULT_SETTINGS };
@@ -695,6 +737,7 @@
                 <button class="btn btn-ghost btn-sm" data-prof-open="${esc(p.id)}">Ouvrir</button>
                 <button class="btn btn-${open ? 'ghost' : 'primary'} btn-sm" data-prof-toggle="${esc(p.id)}">${open ? 'Fermer cette expérience' : 'Rouvrir cette expérience'}</button>
               </div>
+              ${p.session ? sessionBlock(p) : ''}
             </div>
           </div>
         </article>`;
@@ -703,7 +746,31 @@
     projects.forEach((p) => {
       const box = document.getElementById('prof-qr-' + p.id);
       if (box) KleoLive.makeQR(box, p.url, 180);
+      if (p.session) {
+        const code = sessionCodes()[p.id];
+        const sessionQr = document.getElementById('prof-session-qr-' + p.id);
+        if (code && sessionQr) KleoLive.makeQR(sessionQr, studentSessionLink(p, code), 160);
+      }
     });
+  }
+
+  function sessionBlock(project) {
+    const code = sessionCodes()[project.id];
+    if (!code) {
+      return '<div class="prof-session">'
+        + '<p class="meta">Aucune session ouverte. Crée un code : les binômes l\'utilisent pour envoyer leur copie.</p>'
+        + '<button class="btn btn-primary btn-sm" data-create-session="' + esc(project.id) + '">Créer un code de session</button>'
+        + '</div>';
+    }
+    return '<div class="prof-session">'
+      + '<p class="meta">Code de session <strong class="prof-session-code">' + esc(code) + '</strong></p>'
+      + '<div class="qr-box" id="prof-session-qr-' + esc(project.id) + '"></div>'
+      + '<div class="prof-exp-actions">'
+      + '<button class="btn btn-ghost btn-sm" data-copy-session="' + esc(project.id) + '">Copier le lien élèves</button>'
+      + '<button class="btn btn-primary btn-sm" data-open-teacher="' + esc(project.id) + '">Ouvrir en mode prof</button>'
+      + '</div>'
+      + '<p class="meta tiny">Les élèves ouvrent le lien ou tapent le code dans « Envoyer au professeur ».</p>'
+      + '</div>';
   }
 
   function openQrScreen(text, title) {
@@ -1138,6 +1205,47 @@
     if (profOpen) {
       const project = (D.PROJECTS || []).find((p) => p.id === profOpen.dataset.profOpen);
       if (project) window.open(project.url, '_blank', 'noopener');
+      return;
+    }
+
+    const createSession = t.closest('[data-create-session]');
+    if (createSession) {
+      const project = (D.PROJECTS || []).find((p) => p.id === createSession.dataset.createSession);
+      if (!project) return;
+      createSession.disabled = true;
+      createSession.textContent = 'Création…';
+      createSessionCode(project).then(
+        (code) => {
+          saveSessionCode(project.id, code);
+          renderProfProjects();
+          toast('Code de session créé.');
+        },
+        () => {
+          createSession.disabled = false;
+          createSession.textContent = 'Créer un code de session';
+          toast('Création impossible. Vérifie la connexion.');
+        }
+      );
+      return;
+    }
+
+    const copySession = t.closest('[data-copy-session]');
+    if (copySession) {
+      const project = (D.PROJECTS || []).find((p) => p.id === copySession.dataset.copySession);
+      const code = project ? sessionCodes()[project.id] : null;
+      if (project && code) {
+        navigator.clipboard?.writeText(studentSessionLink(project, code)).then(
+          () => toast('Lien élèves copié.'),
+          () => toast('Copie impossible sur ce navigateur.')
+        );
+      }
+      return;
+    }
+
+    const openTeacher = t.closest('[data-open-teacher]');
+    if (openTeacher) {
+      const project = (D.PROJECTS || []).find((p) => p.id === openTeacher.dataset.openTeacher);
+      if (project) window.open(project.url + '?prof=1', '_blank', 'noopener');
       return;
     }
 
