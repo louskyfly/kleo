@@ -1,6 +1,6 @@
 # Clio — la bibliothèque d'expériences
 
-> **Mode bibliothèque (actuel).** L'interface ne montre que la bibliothèque, rangée en dossiers **6e, 5e, 4e, 3e** : *Mystère en Égypte* (6e) et *URSS de Staline / Allemagne nazie* (3e). Un clic ouvre l'expérience, sans fiche intermédiaire. L'atelier (import, génération, éditeur, séances) est **masqué, pas supprimé** : il suffit de passer `LIBRARY_ONLY` à `false` en haut de `app/app.js` pour le réafficher.
+> **Mode bibliothèque (actuel).** L'interface ne montre que la bibliothèque, rangée en dossiers **6e, 5e, 4e, 3e** : *Mystère en Égypte* (6e), *Le monde des cités grecques* (6e) et *URSS de Staline / Allemagne nazie* (3e). Un clic ouvre l'expérience, sans fiche intermédiaire. L'atelier (import, génération, éditeur, séances) est **masqué, pas supprimé** : il suffit de passer `LIBRARY_ONLY` à `false` en haut de `app/app.js` pour le réafficher.
 
 > **Panneau d'accès.** Code professeur : `314324` (défini dans `app/live.js`, jamais affiché dans la page). Chaque expérience a son lien, son QR, un **QR plein écran** pour le tableau et son propre bouton **Fermer / Rouvrir**, indépendamment des autres.
 
@@ -13,7 +13,7 @@ Kléo transforme un cours en **séance interactive** : pages, frise, carte, cart
 ## Ce qui fonctionne en v2
 
 - **Bibliothèque réelle** : créer, dupliquer, renommer, supprimer, filtrer, importer et exporter des séances.
-- **Projets invités** : « Mystère en Égypte » (6e), fiche, structure en 5 actes et lancement de l'enquête.
+- **Projets invités** : « Mystère en Égypte » (6e) et « Le monde des cités grecques » (6e), fiches, structures et lancement des enquêtes.
 - **Structures de séance** : découverte, analyse de document, enquête, révision, évaluation, page blanche.
 - **Classe et QR** : panneau professeur, ouverture/fermeture de l'accès au site, QR de séance et QR du projet.
 - **Éditeur fonctionnel** : 9 types de pages, formulaires de contenu, réorganisation, duplication et suppression.
@@ -67,6 +67,16 @@ La bibliothèque accueille aussi des **projets interactifs** réalisés en dehor
 - **Tableau de bord prof** : suivi des élèves, feuille de questions et corrigé.
 
 Le jeu reste hébergé séparément : [louskyfly.github.io/mystere-en-egypte](https://louskyfly.github.io/mystere-en-egypte/).
+
+## Projet invité : Le monde des cités grecques
+
+« **Le monde des cités grecques** » est un jeu de piste pour une classe de 6e : Théodoros, le guide, disparaît à Patras. Les élèves suivent sa trace jusqu'à Delphes, Athènes et le cap Sounion, lisent les documents, résolvent les énigmes et répondent sur une feuille. 6 actes, 19 questions, environ 1 heure.
+
+- **Fiche** : structure de l'enquête, niveau, durée, crédits.
+- **Lancer l'enquête** : ouvre l'activité autonome, optimisée iPad paysage.
+- **Dossier professeur** : corrigé, déroulé et fiche élève imprimable (code 2026).
+
+L'activité reste hébergée séparément : [louskyfly.github.io/enquete-cites-grecques](https://louskyfly.github.io/enquete-cites-grecques/).
 
 ## Utiliser Kléo
 
