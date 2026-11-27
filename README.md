@@ -70,11 +70,11 @@ Le jeu reste hébergé séparément : [yhglasalle.github.io/mystere-en-egypte](h
 
 ## Projet invité : Le monde des cités grecques
 
-« **Le monde des cités grecques** » est un jeu de piste pour une classe de 6e : Théodoros, le guide, disparaît à Patras. Les élèves suivent sa trace jusqu'à Delphes, Athènes et le cap Sounion, lisent les documents, résolvent les énigmes et répondent sur une feuille. 6 actes, 19 questions, environ 1 heure.
+« **Le monde des cités grecques** » est un jeu de piste pour une classe de 6e : M. Bérard, le proviseur, disparaît à Patras. Les élèves suivent sa trace jusqu'à Delphes, Athènes et le cap Sounion, lisent les documents, résolvent les énigmes et valident leurs réponses dans l'application. 6 actes, 19 questions, environ 1 heure.
 
 - **Fiche** : structure de l'enquête, niveau, durée, crédits.
-- **Lancer l'enquête** : ouvre l'activité autonome, optimisée iPad paysage.
-- **Dossier professeur** : corrigé, déroulé et fiche élève imprimable (code 2026).
+- **Lancer l'enquête** : ouvre l'activité autonome, optimisée iPad paysage, avec photos et cartes réelles.
+- **Dossier professeur** : corrigé, déroulé et fiche élève imprimable (code 2026). Le carnet de l'élève imprime la copie avec les réponses.
 
 L'activité reste hébergée séparément : [yhglasalle.github.io/enquete-cites-grecques](https://yhglasalle.github.io/enquete-cites-grecques/).
 
