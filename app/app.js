@@ -786,6 +786,7 @@
       return '<div class="prof-session">'
         + '<p class="meta">Aucune session ouverte. Crée un code : les binômes l\'utilisent pour envoyer leur copie.</p>'
         + '<button class="btn btn-primary btn-sm" data-create-session="' + esc(project.id) + '">Créer un code de session</button>'
+        + '<button class="btn btn-ghost btn-sm" data-open-bareme="' + esc(project.id) + '">Barème</button>'
         + '</div>';
     }
     return '<div class="prof-session">'
@@ -794,6 +795,7 @@
       + '<div class="prof-exp-actions">'
       + '<button class="btn btn-ghost btn-sm" data-copy-session="' + esc(project.id) + '">Copier le lien élèves</button>'
       + '<button class="btn btn-primary btn-sm" data-open-teacher="' + esc(project.id) + '">Corriger les copies</button>'
+      + '<button class="btn btn-ghost btn-sm" data-open-bareme="' + esc(project.id) + '">Barème</button>'
       + '<button class="btn btn-ghost btn-sm" data-new-session="' + esc(project.id) + '">Nouveau code</button>'
       + '</div>'
       + '<p class="meta tiny">Les élèves ouvrent le lien ou tapent le code dans « Envoyer au professeur ». Les copies arrivent dans Correction.</p>'
@@ -1277,6 +1279,9 @@
       }
       return;
     }
+
+    const openBareme = t.closest('[data-open-bareme]');
+    if (openBareme) { go('correction/bareme/' + openBareme.dataset.openBareme); return; }
 
     const openTeacher = t.closest('[data-open-teacher]');
     if (openTeacher) {
