@@ -176,19 +176,23 @@ body.library-only #project-grid { display: none !important; }
 }
 .subject-art {
   position: absolute;
-  top: -34px;
-  right: -40px;
-  height: 300px;
+  top: -6px;
+  right: 0;
+  height: 250px;
   width: auto;
   max-width: none;
   pointer-events: none;
   z-index: 0;
-  opacity: .42;
-  filter: blur(3px) saturate(1.1);
-  -webkit-filter: blur(3px) saturate(1.1);
-  -webkit-mask-image: radial-gradient(70% 70% at 60% 45%, #000 35%, transparent 100%);
-  mask-image: radial-gradient(70% 70% at 60% 45%, #000 35%, transparent 100%);
+  opacity: .7;
+  filter: blur(1.2px);
+  -webkit-filter: blur(1.2px);
+  /* fondu vers le texte (gauche) et vers les dossiers (bas) */
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, rgba(0,0,0,.55) 35%, #000 70%), linear-gradient(to bottom, #000 45%, transparent 92%);
+  -webkit-mask-composite: source-in;
+  mask-image: linear-gradient(to right, transparent 0%, rgba(0,0,0,.55) 35%, #000 70%), linear-gradient(to bottom, #000 45%, transparent 92%);
+  mask-composite: intersect;
 }
+.subject-count { position: relative; z-index: 1; background: color-mix(in srgb, var(--surface) 80%, transparent); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
 .subject-geo .subject-icon { background: #1f4f4a; }
 .subject-geo .subject-watermark { color: #1f4f4a; }
 .subject-histoire .subject-watermark { color: #6b3b21; }
@@ -270,7 +274,7 @@ body.compact-cards .project-body { padding-top: 14px; padding-bottom: 14px; }
 
 @media (max-width: 900px) {
   .subject-head { padding-right: 0; }
-  .subject-art { height: 210px; top: -24px; right: -50px; opacity: .35; }
+  .subject-art { height: 170px; top: -4px; right: -20px; opacity: .6; }
   .subject-head { min-height: 0; }
   .subject-copy p { max-width: 60%; }
 }
