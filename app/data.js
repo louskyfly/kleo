@@ -253,6 +253,7 @@
     description: "Un voyage en Grèce tourne à l'enquête : Théodoros, le guide, a disparu. Les élèves suivent sa piste de Patras à Delphes, Athènes et au cap Sounion, lisent les documents, résolvent les énigmes et répondent sur leur feuille. Une enquête pour entrer dans le monde des cités grecques.",
     url: 'https://yhglasalle.github.io/enquete-cites-grecques/',
     teacherUrl: 'https://yhglasalle.github.io/enquete-cites-grecques/prof.html',
+    answerKeyUrl: 'https://yhglasalle.github.io/enquete-cites-grecques/prof.html',
     cover: 'projects/cites-grecques.png',
     tags: ['Jeu de piste', 'Grèce antique', 'Cité', 'Mythologie', 'Méditerranée'],
     credit: 'D’après l’enquête de Yannick Sanchez (2019, rév. 2026) · adaptation 2026',
@@ -277,7 +278,14 @@
     description: "Quatre dossiers documentaires, une boîte à outils des mécanismes, un tri comparatif, une carte mentale sourcée et une conclusion. Les binômes envoient leur copie au professeur depuis l'application, qui la corrige avec barème et points.",
     url: 'https://yhglasalle.github.io/enquete-regimes-totalitaires/',
     teacherUrl: 'https://yhglasalle.github.io/enquete-regimes-totalitaires/',
+    editUrl: 'https://yhglasalle.github.io/enquete-regimes-totalitaires/?edit=1',
     session: true,
+    copies: {
+      kind: 'regimes',
+      root: 'enquete-regimes-totalitaires',
+      base: 'https://yhglasalle.github.io/enquete-regimes-totalitaires/',
+      textsTopic: 'enquete-regimes/texts/v1'
+    },
     cover: 'projects/enquete-regimes.jpg',
     tags: ['Contrôle', 'Carte mentale', 'Sources', 'Binôme'],
     credit: 'Application d’enquête · 2026',

@@ -10,10 +10,11 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=20261127b">
-<link rel="stylesheet" href="v2.css?v=20261127b">
-<link rel="stylesheet" href="projects.css?v=20261127b">
-<link rel="stylesheet" href="access.css?v=20261127b">
+<link rel="stylesheet" href="styles.css?v=20261127c">
+<link rel="stylesheet" href="v2.css?v=20261127c">
+<link rel="stylesheet" href="projects.css?v=20261127c">
+<link rel="stylesheet" href="access.css?v=20261127c">
+<link rel="stylesheet" href="correction.css?v=20261127c">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="manifest" href="manifest.webmanifest">
@@ -61,6 +62,8 @@
   <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/></symbol>
   <symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.3 9.4a2.8 2.8 0 1 1 3.8 2.6c-.8.4-1.1 1-1.1 1.9"/><circle cx="12" cy="17.2" r=".8" fill="currentColor" stroke="none"/></symbol>
   <symbol id="i-drag" viewBox="0 0 24 24"><circle cx="9" cy="6" r="1.2" fill="currentColor" stroke="none"/><circle cx="15" cy="6" r="1.2" fill="currentColor" stroke="none"/><circle cx="9" cy="12" r="1.2" fill="currentColor" stroke="none"/><circle cx="15" cy="12" r="1.2" fill="currentColor" stroke="none"/><circle cx="9" cy="18" r="1.2" fill="currentColor" stroke="none"/><circle cx="15" cy="18" r="1.2" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-pen" viewBox="0 0 24 24"><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></symbol>
+  <symbol id="i-grade" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1M8.5 12.5l2.2 2.2 4.8-4.8"/></symbol>
   <symbol id="i-qr" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14h1M14 20h3M20 17v4M17 20h1"/></symbol>
 </svg>
 
@@ -91,6 +94,7 @@
       <a class="rail-link" href="#/library" data-rail data-nav="projects" data-scroll="projects-section"><svg class="ico"><use href="#i-layers"/></svg><span>Projets</span></a>
       <a class="rail-link" href="#/classes" data-rail data-soon="Classes"><svg class="ico"><use href="#i-users"/></svg><span>Classes</span></a>
       <a class="rail-link" href="#/prof" data-rail data-nav="prof"><svg class="ico"><use href="#i-lock"/></svg><span>Panneau</span></a>
+      <a class="rail-link" href="#/correction" data-rail data-nav="correction"><svg class="ico"><use href="#i-grade"/></svg><span>Correction</span></a>
     </nav>
 
     <div class="rail-foot">
@@ -441,6 +445,13 @@
               <button class="btn btn-primary btn-lg" id="prof-gate-btn">Fermer l’accès</button>
               <p class="meta tiny" id="prof-gate-note">Le changement s’applique en quelques secondes.</p>
             </section>
+            <section class="panel prof-card">
+              <div class="prof-card-head">
+                <div><span class="badge badge-terre">Copies des élèves</span><h2>Correction</h2></div>
+              </div>
+              <p class="meta">Toutes les copies reçues, par activité et par code de session. Les notes sont enregistrées en ligne.</p>
+              <a class="btn btn-primary btn-lg" href="#/correction"><svg class="ico"><use href="#i-grade"/></svg>Corriger les copies</a>
+            </section>
           </div>
 
           <div class="section-head section-head-wrap prof-exp-head">
@@ -458,6 +469,25 @@
           </div>
         </div>
       </div>
+    </section>
+
+    <!-- ============================ CORRECTION ============================ -->
+    <section class="screen" id="screen-correction" aria-labelledby="corr-title">
+      <header class="focusbar prof-bar">
+        <button class="icon-btn" data-go="library" aria-label="Retour à la bibliothèque"><svg class="ico"><use href="#i-arrow-left"/></svg></button>
+        <div class="focusbar-title">
+          <p class="crumb">Clio / Professeur</p>
+          <h1 id="corr-title">Correction</h1>
+        </div>
+        <a class="btn btn-ghost btn-sm" href="#/prof"><svg class="ico"><use href="#i-lock"/></svg>Panneau</a>
+        <button class="btn btn-ghost btn-sm" id="corr-refresh">Actualiser</button>
+        <span class="badge badge-terre">Professeur</span>
+      </header>
+      <div class="corr-wrap">
+        <aside class="corr-side panel" id="corr-list" aria-label="Copies reçues"></aside>
+        <div class="corr-main" id="corr-view" aria-live="polite"></div>
+      </div>
+      <div class="corr-zoom" id="corr-zoom" hidden><button class="qr-screen-close" aria-label="Fermer">×</button><div class="corr-zoom-body"></div></div>
     </section>
 
     <!-- ============================ RÉGLAGES ============================ -->
@@ -584,10 +614,11 @@
 
 <script src="vendor/qrcode.min.js"></script>
 <script src="vendor/mqtt.min.js"></script>
-<script src="live.js?v=20261127b"></script>
-<script src="data.js?v=20261127b"></script>
-<script src="slides.js?v=20261127b"></script>
-<script src="editor.js?v=20261127b"></script>
-<script src="app.js?v=20261127b"></script>
+<script src="live.js?v=20261127c"></script>
+<script src="data.js?v=20261127c"></script>
+<script src="slides.js?v=20261127c"></script>
+<script src="editor.js?v=20261127c"></script>
+<script src="correction.js?v=20261127c"></script>
+<script src="app.js?v=20261127c"></script>
 </body>
 </html>

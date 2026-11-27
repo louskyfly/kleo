@@ -58,7 +58,10 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ createdAt: Date.now(), app: 'clio' })
       });
-      if (response.ok) return code;
+      if (response.ok) {
+        if (window.KleoCorrection) await KleoCorrection.registerSession(project, code);
+        return code;
+      }
     }
     throw new Error('session');
   }
@@ -146,6 +149,24 @@
     }
   }
   let editTexts = false;
+  let editTextsFor = null;
+  let afterLogin = null;
+
+  /* Crayon d'une carte : ouvre l'édition des textes de l'activité. */
+  function openProjectEdit(projectId) {
+    const project = (D.PROJECTS || []).find((p) => p.id === projectId);
+    if (!project) return;
+    if (project.editUrl) {
+      window.open(project.editUrl, '_blank', 'noopener');
+      return;
+    }
+    if (state.screen !== 'library') go('library');
+    editTextsFor = editTextsFor === projectId ? null : projectId;
+    renderProjects();
+    toast(editTextsFor
+      ? 'Cette activité n’a pas de mode édition interne : modifie ici le titre et les textes de sa carte.'
+      : 'Textes enregistrés.');
+  }
   let textOverrides = {};
   let lastTextsJson = '';
   let textsTimer = null;
@@ -199,6 +220,7 @@
     clearTimeout(toastTimer);
     toastTimer = setTimeout(() => el.classList.remove('is-on'), 2800);
   }
+  window.KleoToast = toast;
 
   function setSaveState(text, ok = true) {
     const el = $('#save-state');
@@ -281,8 +303,10 @@
       <div class="project-tags">${(p.tags || []).map((t) => `<span>${esc(t)}</span>`).join('')}</div>`;
     if (LIBRARY_ONLY) {
       if (!projectIsOpen(p.id)) {
-        return `<article class="project-card project-card-link is-closed">
+        const editingClosed = editTextsFor === p.id;
+        return `<article class="project-card project-card-link is-closed${editingClosed ? ' is-editing-card' : ''}">
           <div class="project-cover">${coverInner}<span class="project-closed">Fermée</span></div>
+          <button type="button" class="card-edit${editingClosed ? ' is-on' : ''}" data-edit-project="${esc(p.id)}" aria-label="Modifier les textes de l’activité" title="Modifier les textes de l’activité"><svg class="ico"><use href="#${editingClosed ? 'i-check' : 'i-pen'}"/></svg></button>
           <div class="project-body">
             ${body}
             <div class="project-actions">
@@ -291,8 +315,10 @@
           </div>
         </article>`;
       }
-      return `<article class="project-card project-card-link">
+      const editingThis = editTextsFor === p.id;
+      return `<article class="project-card project-card-link${editingThis ? ' is-editing-card' : ''}">
         <a class="project-cover" href="${esc(p.url)}" target="_blank" rel="noopener" aria-label="Ouvrir ${esc(p.title)}">${coverInner}</a>
+        <button type="button" class="card-edit${editingThis ? ' is-on' : ''}" data-edit-project="${esc(p.id)}" aria-label="${editingThis ? 'Terminer la modification' : 'Modifier les textes de l’activité'}" title="${editingThis ? 'Terminer' : 'Modifier les textes de l’activité'}"><svg class="ico"><use href="#${editingThis ? 'i-check' : 'i-pen'}"/></svg></button>
         <div class="project-body">
           ${body}
           <div class="project-actions">
@@ -322,7 +348,7 @@
   }
 
   function editAttr(project, field) {
-    if (!editTexts) return '';
+    if (!editTexts && editTextsFor !== project.id) return '';
     return ' contenteditable="true" spellcheck="false" data-text="' + esc(project.id) + ':' + field + '"';
   }
 
@@ -767,9 +793,10 @@
       + '<div class="qr-box" id="prof-session-qr-' + esc(project.id) + '"></div>'
       + '<div class="prof-exp-actions">'
       + '<button class="btn btn-ghost btn-sm" data-copy-session="' + esc(project.id) + '">Copier le lien élèves</button>'
-      + '<button class="btn btn-primary btn-sm" data-open-teacher="' + esc(project.id) + '">Ouvrir en mode prof</button>'
+      + '<button class="btn btn-primary btn-sm" data-open-teacher="' + esc(project.id) + '">Corriger les copies</button>'
+      + '<button class="btn btn-ghost btn-sm" data-new-session="' + esc(project.id) + '">Nouveau code</button>'
       + '</div>'
-      + '<p class="meta tiny">Les élèves ouvrent le lien ou tapent le code dans « Envoyer au professeur ».</p>'
+      + '<p class="meta tiny">Les élèves ouvrent le lien ou tapent le code dans « Envoyer au professeur ». Les copies arrivent dans Correction.</p>'
       + '</div>';
   }
 
@@ -1063,21 +1090,29 @@
   /* ------------------------------------------------------------
      Navigation
      ------------------------------------------------------------ */
-  const SCREENS = ['library', 'import', 'generate', 'editor', 'prof', 'settings'];
+  const SCREENS = ['library', 'import', 'generate', 'editor', 'prof', 'correction', 'settings'];
   function parseHash() { return location.hash.replace(/^#\/?/, '') || 'library'; }
 
-  function showScreen(name) {
+  function teacherAuthed() { return sessionStorage.getItem('kleo_teacher') === '1'; }
+
+  function showScreen(name, arg) {
     if (LIBRARY_ONLY && (name === 'import' || name === 'generate' || name === 'editor')) name = 'library';
+    if (name === 'correction' && !teacherAuthed()) {
+      afterLogin = { screen: 'correction', arg: arg || '' };
+      name = 'prof';
+    }
     state.screen = name;
     if (name !== 'generate') clearGeneration();
     document.body.classList.toggle('is-editing', name === 'editor');
-    document.body.classList.toggle('is-prof', name === 'prof');
+    document.body.classList.toggle('is-prof', name === 'prof' || name === 'correction');
+    document.body.classList.toggle('is-correction', name === 'correction');
     SCREENS.forEach((s) => $('#screen-' + s)?.classList.toggle('is-active', s === name));
     $$('.rail-link').forEach((a) => a.classList.toggle('is-active', a.dataset.nav === name));
     if (name === 'editor') { renderEditor(true); closeInspector(); }
     if (name === 'library') renderLibrary();
     if (name === 'import') { fillImportForm(); renderFiles(); }
     if (name === 'prof') renderProf();
+    if (name === 'correction' && window.KleoCorrection) KleoCorrection.show(arg);
     if (name === 'settings') renderSettings();
     if (name !== 'viewer') window.scrollTo({ top: 0 });
   }
@@ -1121,6 +1156,7 @@
 
   function route() {
     const [name, arg] = parseHash().split('/');
+    if (name === 'correction') { closeInspector(); showScreen('correction', parseHash().split('/').slice(1).join('/')); return; }
     if (LIBRARY_ONLY && (name === 'import' || name === 'generate' || name === 'editor')) {
       history.replaceState(null, '', '#/library');
       showScreen('library');
@@ -1245,7 +1281,35 @@
     const openTeacher = t.closest('[data-open-teacher]');
     if (openTeacher) {
       const project = (D.PROJECTS || []).find((p) => p.id === openTeacher.dataset.openTeacher);
-      if (project) window.open(project.url + '?prof=1', '_blank', 'noopener');
+      const code = project ? sessionCodes()[project.id] : null;
+      go('correction' + (code ? '/' + code : ''));
+      return;
+    }
+
+    const newSession = t.closest('[data-new-session]');
+    if (newSession) {
+      const project = (D.PROJECTS || []).find((p) => p.id === newSession.dataset.newSession);
+      if (!project) return;
+      if (!window.confirm('Créer un nouveau code (pour une autre classe) ? Les copies de l’ancien code restent dans Correction.')) return;
+      newSession.disabled = true;
+      createSessionCode(project).then(
+        (code) => { saveSessionCode(project.id, code); renderProfProjects(); toast('Nouveau code de session créé.'); },
+        () => { newSession.disabled = false; toast('Création impossible. Vérifie la connexion.'); }
+      );
+      return;
+    }
+
+    const editProject = t.closest('[data-edit-project]');
+    if (editProject) {
+      e.preventDefault();
+      const id = editProject.dataset.editProject;
+      if (!teacherAuthed()) {
+        afterLogin = { edit: id };
+        go('prof');
+        toast('Entre le code professeur pour modifier les textes.');
+        return;
+      }
+      openProjectEdit(id);
       return;
     }
 
@@ -1307,6 +1371,12 @@
         sessionStorage.setItem('kleo_teacher', '1');
         if (msg) msg.hidden = true;
         renderProf();
+        if (afterLogin) {
+          const next = afterLogin;
+          afterLogin = null;
+          if (next.screen === 'correction') go('correction' + (next.arg ? '/' + next.arg : ''));
+          else if (next.edit) openProjectEdit(next.edit);
+        }
       } else {
         if (msg) msg.hidden = false;
         input?.select();
@@ -1976,9 +2046,9 @@
       const json = JSON.stringify(g.texts || {});
       if (json !== lastTextsJson) {
         lastTextsJson = json;
-        if (!editTexts) textOverrides = g.texts || {};
+        if (!editTexts && !editTextsFor) textOverrides = g.texts || {};
       }
-      if (LIBRARY_ONLY && !editTexts) renderProjects();
+      if (LIBRARY_ONLY && !editTexts && !editTextsFor) renderProjects();
     });
   }
 

@@ -25,7 +25,7 @@ window.KleoLive = (() => {
   let connectWaiters = [];
   let joining = false;
 
-  const isProf = () => /^#\/prof/.test(location.hash);
+  const isProf = () => /^#\/(prof|correction)/.test(location.hash);
   const randomCode = (n = 5) => {
     const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
     let out = '';
