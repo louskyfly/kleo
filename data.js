@@ -242,6 +242,30 @@
       { title: 'V · La pyramide', detail: 'Sarcophage, coordonnées, finale' }
     ]
   }, {
+    id: 'proj_grece',
+    title: 'Le monde des cités grecques',
+    subtitle: 'Sur la piste de Théodoros',
+    subject: 'histoire',
+    level: '6e',
+    duration: 60,
+    questions: 19,
+    acts: 6,
+    description: "Un voyage en Grèce tourne à l'enquête : Théodoros, le guide, a disparu. Les élèves suivent sa piste de Patras à Delphes, Athènes et au cap Sounion, lisent les documents, résolvent les énigmes et répondent sur leur feuille. Une enquête pour entrer dans le monde des cités grecques.",
+    url: 'https://louskyfly.github.io/enquete-cites-grecques/',
+    teacherUrl: 'https://louskyfly.github.io/enquete-cites-grecques/prof.html',
+    cover: 'projects/cites-grecques.png',
+    tags: ['Jeu de piste', 'Grèce antique', 'Cité', 'Mythologie', 'Méditerranée'],
+    credit: 'D’après l’enquête de Yannick Sanchez (2019, rév. 2026) · adaptation 2026',
+    phases: [
+      { title: 'Prologue', detail: 'Le concours et le départ' },
+      { title: 'I · Le voyage', detail: 'Montpellier, Ravenne, Patras' },
+      { title: 'II · La chambre vide', detail: 'Le message de Théodoros' },
+      { title: 'III · Delphes', detail: 'Sanctuaire, jeux, Pythie' },
+      { title: 'IV · Athènes', detail: 'Acropole, cité, musée' },
+      { title: 'V · Le musée', detail: 'Sphinx, Œdipe, Poséidon' },
+      { title: 'VI · Le cap', detail: 'Sounion, la mer, la fin' }
+    ]
+  }, {
     id: 'proj_regimes',
     title: 'URSS de Staline / Allemagne nazie',
     subtitle: 'Le contrôle de troisième, en binôme',
