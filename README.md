@@ -66,7 +66,7 @@ La bibliothèque accueille aussi des **projets interactifs** réalisés en dehor
 - **Lancer l'enquête** : ouvre le jeu autonome, optimisé iPad paysage.
 - **Tableau de bord prof** : suivi des élèves, feuille de questions et corrigé.
 
-Le jeu reste hébergé séparément : [louskyfly.github.io/mystere-en-egypte](https://louskyfly.github.io/mystere-en-egypte/).
+Le jeu reste hébergé séparément : [yhglasalle.github.io/mystere-en-egypte](https://yhglasalle.github.io/mystere-en-egypte/).
 
 ## Projet invité : Le monde des cités grecques
 
@@ -76,7 +76,7 @@ Le jeu reste hébergé séparément : [louskyfly.github.io/mystere-en-egypte](ht
 - **Lancer l'enquête** : ouvre l'activité autonome, optimisée iPad paysage.
 - **Dossier professeur** : corrigé, déroulé et fiche élève imprimable (code 2026).
 
-L'activité reste hébergée séparément : [louskyfly.github.io/enquete-cites-grecques](https://louskyfly.github.io/enquete-cites-grecques/).
+L'activité reste hébergée séparément : [yhglasalle.github.io/enquete-cites-grecques](https://yhglasalle.github.io/enquete-cites-grecques/).
 
 ## Utiliser Kléo
 
