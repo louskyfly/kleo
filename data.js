@@ -277,6 +277,7 @@
     description: "Quatre dossiers documentaires, une boîte à outils des mécanismes, un tri comparatif, une carte mentale sourcée et une conclusion. Les binômes envoient leur copie au professeur depuis l'application, qui la corrige avec barème et points.",
     url: 'https://louskyfly.github.io/enquete-regimes-totalitaires/',
     teacherUrl: 'https://louskyfly.github.io/enquete-regimes-totalitaires/',
+    session: true,
     cover: 'projects/enquete-regimes.jpg',
     tags: ['Contrôle', 'Carte mentale', 'Sources', 'Binôme'],
     credit: 'Application d’enquête · 2026',

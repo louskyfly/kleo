@@ -138,3 +138,19 @@ body.qr-open { overflow: hidden; }
   .prof-exp-body .qr-box { width: 140px; height: 140px; }
   .qr-screen-title { font-size: 22px; }
 }
+
+.prof-session {
+  margin-top: 6px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--line);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.prof-session .qr-box { width: 140px; height: 140px; }
+.prof-session-code {
+  font-family: var(--font-mono);
+  font-size: 20px;
+  letter-spacing: .16em;
+  color: var(--ink);
+}
