@@ -194,3 +194,9 @@ tr.is-bad .corr-mark, .corr-chip.is-bad .corr-mark { color: var(--bad); }
   .corr-cols { grid-template-columns: 1fr; }
   .corr-sec, .corr-head { padding: 16px; }
 }
+
+/* Correction automatique en attente de validation */
+.corr-sec-head.is-auto { background: var(--ok-soft); border-radius: 12px; padding: 10px 12px; }
+.corr-auto-note { margin: 4px 0 0; font-size: 13px; color: var(--ok); font-weight: 600; }
+.corr-sec-ok { min-height: 34px; min-width: 64px; font-size: 14px; }
+.cg.is-auto .cg-input { border-style: dashed; }
