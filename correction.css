@@ -200,3 +200,23 @@ tr.is-bad .corr-mark, .corr-chip.is-bad .corr-mark { color: var(--bad); }
 .corr-auto-note { margin: 4px 0 0; font-size: 13px; color: var(--ok); font-weight: 600; }
 .corr-sec-ok { min-height: 34px; min-width: 64px; font-size: 14px; }
 .cg.is-auto .cg-input { border-style: dashed; }
+
+/* Nom du binôme sous la note */
+.corr-total-score { display: flex; align-items: baseline; gap: 4px; justify-content: flex-end; }
+.corr-total-names { margin: 2px 0 0; font-size: 14px; font-weight: 600; text-align: right; }
+.corr-foot-total { display: flex; flex-direction: column; }
+.corr-foot-total .corr-total-names { text-align: left; font-weight: 500; color: var(--ink-soft, inherit); }
+
+/* Barème */
+.corr-act-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.corr-act-head .btn { min-height: 30px; padding: 0 10px; font-size: 12px; }
+.corr-act-head .btn.is-on { border-color: var(--ok); color: var(--ok); }
+.bar-list { list-style: none; margin: 0; padding: 0; }
+.bar-row { display: grid; grid-template-columns: 1fr 76px auto; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--line, #e5e5e5); }
+.bar-row:last-child { border-bottom: 0; }
+.bar-row p { margin: 0; font-size: 14px; }
+.bar-row .corr-q-num { margin-right: 8px; }
+.bar-input { width: 76px; }
+.bar-all { display: inline-flex; align-items: center; gap: 6px; margin-left: 10px; }
+.bar-all .bar-input { width: 64px; }
+[data-bar-grand].is-off { color: #c0392b; }

@@ -35,7 +35,10 @@ window.KleoCorrection = (() => {
     saveTimers: {},
     saving: {},        // copyKey -> 'saving' | 'saved' | 'error'
     localGrades: {},   // copyKey -> grades en cours d'édition (prioritaires sur la base)
-    pendingImport: ''
+    pendingImport: '',
+    view: 'copies',    // 'copies' | 'bareme'
+    bareme: {},        // projectId -> brouillon du barème
+    baremeSaving: ''
   };
 
   const copyKey = (pid, code, id) => pid + '|' + code + '|' + id;
@@ -159,6 +162,10 @@ window.KleoCorrection = (() => {
       import(cfg.base + 'map.js' + v).catch(() => null)
     ]);
     const kit = makeRegimesKit(content, map);
+    try {
+      const saved = await getJson(cfg.root + '/bareme');
+      if (saved) kit.applyBareme(saved);
+    } catch (e) {}
     st.kits[project.id] = kit;
     loadTextOverrides(cfg.textsTopic, (overrides) => {
       kit.applyOverrides(overrides);
@@ -269,11 +276,34 @@ window.KleoCorrection = (() => {
       DOSSIERS.forEach((d) => d.questions.forEach((q) => list.push({ key: 'q:' + q.id, max: Number(q.points) || 0, section: 'questions', correct: null })));
       MECHANISMS.forEach((m) => list.push({ key: 'm:' + m.id, max: Number(m.points) || 0, section: 'mechanisms', correct: sub ? sub.mechanisms?.[m.id]?.choice === m.answer : null }));
       SORT_ITEMS.forEach((i) => list.push({ key: 's:' + i.id, max: Number(i.points) || 0, section: 'sort', correct: sub ? sub.sort?.[i.id] === i.answer : null }));
-      list.push({ key: 'map', max: Number(EVALUATION.map.points) || 0, section: 'map', correct: null });
       list.push({ key: 'conclusion', max: Number(EVALUATION.conclusion.points) || 0, section: 'conclusion', correct: null });
       return list;
     }
     const totalMax = () => items(null).reduce((s, i) => s + i.max, 0);
+
+    /* Barème modifiable par le professeur (enregistré dans la base). */
+    const DEFAULTS = {
+      q: Object.fromEntries(DOSSIERS.flatMap((d) => d.questions.map((q) => [q.id, Number(q.points) || 0]))),
+      m: Object.fromEntries(MECHANISMS.map((m) => [m.id, Number(m.points) || 0])),
+      s: Object.fromEntries(SORT_ITEMS.map((i) => [i.id, Number(i.points) || 0])),
+      conclusion: Number(EVALUATION.conclusion.points) || 0
+    };
+    function currentBareme() {
+      return {
+        q: Object.fromEntries(DOSSIERS.flatMap((d) => d.questions.map((q) => [q.id, Number(q.points) || 0]))),
+        m: Object.fromEntries(MECHANISMS.map((m) => [m.id, Number(m.points) || 0])),
+        s: Object.fromEntries(SORT_ITEMS.map((i) => [i.id, Number(i.points) || 0])),
+        conclusion: Number(EVALUATION.conclusion.points) || 0
+      };
+    }
+    function applyBareme(b) {
+      if (!b) return;
+      const num = (v, d) => (v === undefined || v === null || Number.isNaN(Number(v)) ? d : Math.max(0, Number(v)));
+      DOSSIERS.forEach((d) => d.questions.forEach((q) => { q.points = num(b.q?.[q.id], DEFAULTS.q[q.id]); }));
+      MECHANISMS.forEach((m) => { m.points = num(b.m?.[m.id], DEFAULTS.m[m.id]); });
+      SORT_ITEMS.forEach((i) => { i.points = num(b.s?.[i.id], DEFAULTS.s[i.id]); });
+      EVALUATION.conclusion.points = num(b.conclusion, DEFAULTS.conclusion);
+    }
 
     function mapSvg(sub) {
       if (!M || !M.toSVGFromData || !sub.map?.nodes?.length) return '';
@@ -287,7 +317,7 @@ window.KleoCorrection = (() => {
       return [...QIDS.map((id) => 'q:' + id), ...MIDS.map((id) => 'm:' + id), ...SIDS.map((id) => 's:' + id), 'map', 'conclusion'];
     }
 
-    return { C, expand, compact, items, totalMax, mapSvg, applyOverrides, csvHeader, csvKeys, render: (ctx) => renderRegimes(C, ctx) };
+    return { C, expand, compact, items, totalMax, currentBareme, applyBareme, defaults: DEFAULTS, mapSvg, applyOverrides, csvHeader, csvKeys, render: (ctx) => renderRegimes(C, ctx) };
   }
 
   /* ---------------- Notes ---------------- */
@@ -298,10 +328,10 @@ window.KleoCorrection = (() => {
     return (g && g.g) || {};
   }
   function totalOf(grades) {
-    return Object.values(grades || {}).reduce((s, v) => s + (Number(v) || 0), 0);
+    return Object.entries(grades || {}).reduce((s, [k, v]) => (k === 'map' ? s : s + (Number(v) || 0)), 0);
   }
   function isGraded(pid, code, id) {
-    return Object.keys(gradesFor(pid, code, id)).length > 0;
+    return Object.keys(gradesFor(pid, code, id)).some((k) => k !== 'map');
   }
 
   /* Correction automatique : boîte à outils et tri (réponses fermées). Proposée tant que le professeur n'a pas validé avec OK. */
@@ -453,7 +483,7 @@ window.KleoCorrection = (() => {
         return head + `<div class="corr-copies">${list}${tools}</div>`;
       }).join('');
       return `<section class="corr-act">
-        <h3>${esc(p.title)}</h3>
+        <div class="corr-act-head"><h3>${esc(p.title)}</h3><button type="button" class="btn btn-ghost btn-sm${st.view === 'bareme' && st.pid === p.id ? ' is-on' : ''}" data-corr-bareme="${esc(p.id)}">Barème</button></div>
         ${sessions.length ? rows : `<p class="meta">${st.loaded ? 'Aucun code de session. Crée-le dans le Panneau.' : 'Chargement…'}</p>`}
       </section>`;
     }).join('');
@@ -484,6 +514,7 @@ window.KleoCorrection = (() => {
   function renderView(keepScroll) {
     const mount = $('#corr-view');
     if (!mount) return;
+    if (st.view === 'bareme') { renderBareme(); return; }
     const project = projectById(st.pid);
     if (!project || !st.code) {
       mount.innerHTML = `<div class="panel corr-empty"><h2>Choisis une copie</h2>
@@ -598,7 +629,7 @@ window.KleoCorrection = (() => {
           <h2>${esc(copy.names)}</h2>
           <p class="meta">${esc(sub.group.className || 'Classe non renseignée')} · envoyée le ${esc(fmtDate(copy.at, true))}</p>
         </div>
-        <div class="corr-total"><strong data-total>0</strong><span>/ ${pts(max)}</span><small class="corr-save" data-save-state></small></div>
+        <div class="corr-total"><div class="corr-total-score"><strong data-total>0</strong><span>/ ${pts(max)}</span></div><p class="corr-total-names">${esc(copy.names)}</p><small class="corr-save" data-save-state></small></div>
       </header>
 
       <section class="panel corr-sec">
@@ -622,11 +653,10 @@ window.KleoCorrection = (() => {
 
       <section class="panel corr-sec">
         <header class="corr-sec-head"><div><h3>Carte mentale</h3><p class="meta">${nodes.length} nœud${nodes.length > 1 ? 's' : ''} · ${(sub.map?.links || []).length} lien${(sub.map?.links || []).length > 1 ? 's' : ''} · ${sourced} sourcé${sourced > 1 ? 's' : ''}</p></div>
-          <div class="corr-sec-right">${gradeCtl('map', Number(EVALUATION.map.points) || 0, grades)}</div></header>
+          <div class="corr-sec-right"><span class="badge badge-soft">Non notée</span></div></header>
         <div class="corr-map" data-corr-zoom role="button" tabindex="0" aria-label="Agrandir la carte">${svg || '<p class="meta">Carte non fournie.</p>'}</div>
         ${svg ? '<p class="meta tiny">Touche la carte pour l’agrandir.</p>' : ''}
         ${nodes.length ? `<details class="corr-nodes"><summary>Détail des nœuds et des sources</summary><ul>${nodes.filter((n) => n.category !== 'central').map((n) => `<li><strong>${esc(n.title)}</strong>${n.note ? ' · ' + esc(n.note) : ''}${n.source ? `<small>Source : ${esc(n.source)}</small>` : '<small class="is-missing">Sans source</small>'}</li>`).join('')}</ul></details>` : ''}
-        <div class="corr-key"><span>Attendu</span><p>${esc(EVALUATION.map.correction)}</p></div>
       </section>
 
       <section class="panel corr-sec">
@@ -637,11 +667,110 @@ window.KleoCorrection = (() => {
       </section>
 
       <footer class="panel corr-foot">
-        <strong>Total <span data-total>0</span> / ${pts(max)}</strong>
+        <div class="corr-foot-total"><strong>Total <span data-total>0</span> / ${pts(max)}</strong><span class="corr-total-names">${esc(copy.names)}</span></div>
         <span class="corr-save" data-save-state></span>
         <button type="button" class="btn btn-primary btn-sm" data-corr-next>Copie suivante<svg class="ico"><use href="#i-arrow-right"/></svg></button>
       </footer>
     </article>`;
+  }
+
+  /* ---------------- Barème ---------------- */
+  function baremeProject() {
+    return projectById(st.pid) && projectById(st.pid).copies ? projectById(st.pid) : withCopies()[0];
+  }
+  function renderBareme() {
+    const mount = $('#corr-view');
+    const project = baremeProject();
+    if (!mount || !project) return;
+    const kit = st.kits[project.id];
+    if (!kit) {
+      mount.innerHTML = '<div class="panel corr-empty"><p class="meta">Chargement du barème…</p></div>';
+      loadKit(project).then(() => renderView(), () => {
+        mount.innerHTML = '<div class="panel corr-empty"><p class="form-warn">Impossible de charger l’activité. Vérifie la connexion.</p></div>';
+      });
+      return;
+    }
+    const b = st.bareme[project.id] || (st.bareme[project.id] = kit.currentBareme());
+    const { DOSSIERS, MECHANISMS, SORT_ITEMS } = kit.C;
+    const input = (path, v) => `<input type="number" class="cg-input bar-input" data-bar="${esc(path)}" min="0" step="0.25" inputmode="decimal" value="${esc(v)}" aria-label="Points">`;
+    const row = (label, path, v) => `<li class="bar-row"><p>${label}</p>${input(path, v)}<span class="cg-of">pt</span></li>`;
+    const all = (sec) => `<span class="bar-all"><span class="meta tiny">Tout à</span><input type="number" class="cg-input bar-input" data-bar-all="${sec}" min="0" step="0.25" inputmode="decimal" placeholder="…" aria-label="Mettre la même valeur partout"></span>`;
+    const head = (title, sec) => `<header class="corr-sec-head"><div><h3>${esc(title)}</h3></div>
+      <div class="corr-sec-right"><span class="corr-sec-total" data-bar-total="${sec}">0</span><span class="meta"> pts</span>${sec === 'conclusion' ? '' : all(sec)}</div></header>`;
+    mount.innerHTML = `<article class="corr-doc bar-doc">
+      <header class="panel corr-head">
+        <div><p class="eyebrow">Barème</p><h2>${esc(project.title)}</h2>
+          <p class="meta">Choisis les points de chaque question. La carte mentale n’est pas notée. Le barème s’applique à toutes les copies, sur tous tes appareils.</p></div>
+        <div class="corr-total"><div class="corr-total-score"><strong data-bar-grand>0</strong><span>pts</span></div><small class="corr-save" data-bar-state></small></div>
+      </header>
+      <section class="panel corr-sec">${head("Questions d'enquête", 'q')}
+        ${DOSSIERS.map((d) => `<div class="corr-dossier"><h4>Dossier ${esc(d.number)} · ${esc(d.title)}</h4><ul class="bar-list">
+          ${d.questions.map((q, i) => row(`<span class="corr-q-num">${esc(d.number)}.${i + 1}</span>${esc(q.prompt)}`, 'q.' + q.id, b.q[q.id])).join('')}</ul></div>`).join('')}
+      </section>
+      <section class="panel corr-sec">${head('Boîte à outils · mécanismes', 'm')}
+        <ul class="bar-list">${MECHANISMS.map((m) => row(esc(m.label), 'm.' + m.id, b.m[m.id])).join('')}</ul>
+      </section>
+      <section class="panel corr-sec">${head('Tri comparatif', 's')}
+        <ul class="bar-list">${SORT_ITEMS.map((i) => row(esc(i.text), 's.' + i.id, b.s[i.id])).join('')}</ul>
+      </section>
+      <section class="panel corr-sec">${head('Conclusion', 'conclusion')}
+        <ul class="bar-list">${row('Conclusion comparative', 'conclusion', b.conclusion)}</ul>
+      </section>
+      <footer class="panel corr-foot">
+        <strong>Total <span data-bar-grand>0</span> pts</strong>
+        <span class="corr-save" data-bar-state></span>
+        <button type="button" class="btn btn-ghost btn-sm" data-bar-reset>Barème d’origine</button>
+        <button type="button" class="btn btn-primary btn-sm" data-bar-save>Enregistrer le barème</button>
+      </footer>
+    </article>`;
+    updateBaremeTotals();
+  }
+  function baremeSum(b, sec) {
+    if (sec === 'conclusion') return Number(b.conclusion) || 0;
+    return Object.values(b[sec] || {}).reduce((s, v) => s + (Number(v) || 0), 0);
+  }
+  function updateBaremeTotals() {
+    const project = baremeProject();
+    const b = project && st.bareme[project.id];
+    if (!b) return;
+    const secs = ['q', 'm', 's', 'conclusion'];
+    document.querySelectorAll('#corr-view [data-bar-total]').forEach((el) => { el.textContent = pts(baremeSum(b, el.dataset.barTotal)); });
+    const grand = secs.reduce((s, k) => s + baremeSum(b, k), 0);
+    document.querySelectorAll('#corr-view [data-bar-grand]').forEach((el) => {
+      el.textContent = pts(grand);
+      el.classList.toggle('is-off', Math.abs(grand - 20) > 0.001);
+    });
+    const label = st.baremeSaving === 'saving' ? 'Enregistrement…' : st.baremeSaving === 'error' ? 'Non enregistré : vérifie la connexion'
+      : st.baremeSaving === 'saved' ? 'Enregistré' : st.baremeSaving === 'dirty' ? 'Modifications non enregistrées' : '';
+    document.querySelectorAll('#corr-view [data-bar-state]').forEach((el) => {
+      el.textContent = (Math.abs(grand - 20) > 0.001 ? 'Total différent de 20. ' : '') + label;
+      el.classList.toggle('is-error', st.baremeSaving === 'error');
+    });
+  }
+  function setBar(path, value) {
+    const project = baremeProject();
+    const b = project && st.bareme[project.id];
+    if (!b) return;
+    const v = value === '' || Number.isNaN(Number(value)) ? 0 : Math.max(0, Number(value));
+    const [sec, id] = path.split('.');
+    if (sec === 'conclusion') b.conclusion = v; else b[sec][id] = v;
+    st.baremeSaving = 'dirty';
+    updateBaremeTotals();
+  }
+  async function saveBareme() {
+    const project = baremeProject();
+    const kit = project && st.kits[project.id];
+    const b = project && st.bareme[project.id];
+    if (!kit || !b) return;
+    st.baremeSaving = 'saving'; updateBaremeTotals();
+    try {
+      await putJson(project.copies.root + '/bareme', { ...b, at: Date.now() });
+      kit.applyBareme(b);
+      st.baremeSaving = 'saved';
+      toast('Barème enregistré.');
+      renderList();
+    } catch (e) { st.baremeSaving = 'error'; }
+    updateBaremeTotals();
   }
 
   function updateTotals() {
@@ -752,6 +881,7 @@ window.KleoCorrection = (() => {
       if (sess) {
         const [pid, code] = sess.dataset.corrSession.split('|');
         const same = st.pid === pid && st.code === code;
+        st.view = 'copies';
         st.pid = pid; st.code = same ? null : code; st.copyId = null;
         if (!same) {
           const project = projectById(pid);
@@ -762,6 +892,7 @@ window.KleoCorrection = (() => {
       }
       const cp = t.closest('[data-corr-copy]');
       if (cp) {
+        st.view = 'copies';
         st.copyId = cp.dataset.corrCopy;
         renderList(); renderView();
         $('#corr-view')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -769,6 +900,14 @@ window.KleoCorrection = (() => {
       }
       const mx = t.closest('[data-grade-max]');
       if (mx) { setGrade(mx.dataset.gradeMax, Number(mx.dataset.max), Number(mx.dataset.max)); return; }
+      const openBar = t.closest('[data-corr-bareme]');
+      if (openBar) { st.view = 'bareme'; st.pid = openBar.dataset.corrBareme; st.copyId = null; renderList(); renderView(); $('#corr-view')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); return; }
+      if (t.closest('[data-bar-save]')) { saveBareme(); return; }
+      if (t.closest('[data-bar-reset]')) {
+        const project = baremeProject(); const kit = project && st.kits[project.id];
+        if (kit) { st.bareme[project.id] = JSON.parse(JSON.stringify(kit.defaults)); st.baremeSaving = 'dirty'; renderView(); }
+        return;
+      }
       const ok = t.closest('[data-section-ok]');
       if (ok) { validateSection(ok.dataset.sectionOk); toast('Correction validée.'); return; }
       const sm = t.closest('[data-section-max]');
@@ -811,6 +950,13 @@ window.KleoCorrection = (() => {
     screen.addEventListener('input', (e) => {
       const input = e.target.closest('[data-grade]');
       if (input) setGrade(input.dataset.grade, input.value, Number(input.dataset.max));
+      const bar = e.target.closest('[data-bar]');
+      if (bar) setBar(bar.dataset.bar, bar.value);
+      const barAll = e.target.closest('[data-bar-all]');
+      if (barAll && barAll.value !== '') {
+        const sec = barAll.dataset.barAll;
+        document.querySelectorAll('#corr-view [data-bar^="' + sec + '."]').forEach((el) => { el.value = barAll.value; setBar(el.dataset.bar, barAll.value); });
+      }
       const imp = e.target.closest('#corr-import-text');
       if (imp) st.pendingImport = imp.value;
     });
@@ -832,7 +978,12 @@ window.KleoCorrection = (() => {
   function show(arg) {
     bind();
     const parts = String(arg || '').split('/');
-    if (parts[0] === 'copie' && parts[1]) {
+    if (parts[0] === 'bareme') {
+      const p = (parts[1] && projectById(parts[1])) || withCopies()[0];
+      if (p) { st.view = 'bareme'; st.pid = p.id; st.copyId = null; }
+      history.replaceState(null, '', '#/correction');
+      refresh();
+    } else if (parts[0] === 'copie' && parts[1]) {
       st.pendingImport = decodeURIComponent(parts.slice(1).join('/'));
       history.replaceState(null, '', '#/correction');
       refresh().then(() => decodeCopyCode(st.pendingImport).then(importPayload).catch(() => toast('Lien de correction illisible.')));
